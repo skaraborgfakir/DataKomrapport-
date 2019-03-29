@@ -1,0 +1,398 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[swedish]{babel}
+
+%% \renewcommand{\baselinestretch}{1.5}
+%% \linespread{1.5}
+
+% smallare marginal för anteckningar
+\usepackage[marginparwidth=30pt]{geometry}
+
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{booktabs}  %% bottomrule/toprule !
+\usepackage{verbatim}
+\usepackage{xcolor}
+%% \usepackage[flushleft]{threeparttable}
+%% \usepackage{hyperref}
+
+\usepackage{footnote}
+\usepackage{tabu}
+
+
+\usepackage{listings}
+\usepackage[fleqn]{mathtools}
+
+\usepackage{pgf}
+\newcommand{\BinaryAdd}[2]{%
+    {#1}_2 + {#2}_2 = \pgfmathbin{0b#1 + 0b#2}% compute binary addition
+    \pgfmathresult_2% format output to make it clear it is base 2
+}%
+
+\title{Labbrapport IT119G}
+\author{Stefan Niskanen Skoglund\\IT119G\\19670927--5934}
+\usepackage{csquotes}
+\usepackage[style=alphabetic,backend=biber]{biblatex}
+\addbibresource[location=local]{bib.bib}
+%% \addbibresource[location=remote]{https://drive.google.com/uc?id=0B1jZYhxUIQloSkZvNVRoYU9WRlU&export=download}
+%%                               https://drive.google.com/open?id=1j-K4JcICMceABPmD4DrHYimv5mZ4iELp
+%% \addbibresource[location=remote]{https://drive.google.com/uc?id=1j-K4JcICMceABPmD4DrHYimv5mZ4iELp&export=download}
+
+\begin{document}
+
+\maketitle
+
+\section{Statisk IP:adressering}\label{sec:statisk_ip_adressering}
+
+\subsection{översättning av IP-adress till motsvarande MAC:adresser}\label{trans_ip_mac}
+
+\begin{table}[ht]
+  \centering
+  \caption{MAC-adresser}
+  \begin{tabu}{ll}
+    \toprule
+    ESXi (vmnic0)     &6c:0b:84:08:fa:79\\
+    PC01 (e160)       &00:50:56:36:16:67\footnotemark[1]\\
+    webserver01 (e160)&00:0c:29:4a:cc:d2\footnotemark[2]\\
+    \bottomrule
+  \end{tabu}
+\end{table}
+\footnotetext[1]{Statisk tilldelning via gui}
+\footnotetext[2]{automatiskt tilldelad adress i ESXi}
+
+Vilket protokoll använda i ett nätverk där datorer vill översätta IPv4:s numeriska men logiska adresser
+till något som hårdvaran kan hantera? ARP.\@ Det protokoll som används när datorerna i en datorgrupp vill få veta vilken som är korrekt
+Ethnernet:adress till utgående anslutningar och andra maskiner.
+
+Vad kan man säga om vem som är leverantör om man ser en MAC:adress i ARP:tabellen?
+
+\begin{table}[ht]
+  \centering
+  \caption{MAC-adresser med leverantörer}
+  \begin{tabu}{l l l}
+    \toprule
+    maskinnamn         &MAC-adress       &Ansvarig leverantör\\
+    ESXi (vmnic0)      &6c:0b:84:08:fa:79&Universal Global Scientific Industrial Co.,Ltd.\footnotemark[3]\\
+    % ESXi (vmnic0)      & 6c:0b:84:08:fa:79 & Universal Global Scientific Industrial Co.,Ltd. \footnote{Lenovo PC}\\
+    PC01 (e160)        &00:50:56:36:16:67&VMware Inc\\
+    webserver01 (e160) &00:0c:29:4a:cc:d2&VMware Inc\\
+    dhcp01 (e160)      &00:0c:29:9e:43:6a&VMware Inc\\
+    10.204.20.1        &bc:ea:fa:11:94:33&Hewlett-Packard\footnotemark[4]\\
+    % 10.204.20.1        & bc:ea:fa:11:94:33 & Hewlett-Packard \footnote{Anslutning i gateway:maskin för gruppen 10.204.20.0},\footnote{Hewlett Packard växel ?} \\
+    \bottomrule
+  \end{tabu}
+\end{table}
+\footnotetext[3]{Lenovo PC}
+\footnotetext[4]{Hewlett-Packard växel? Anslutning i gateway:maskin för gruppen 10.204.20.0}
+
+MAC-adresser i klassisk Ethernet som även är känt som DIX:standarden efter
+de bakomliggande leverantörerna fördelar användbara adresser genom att tilldela
+leverantörerna ett eller flera prefix eller adressområden som de blev ansvarig för. MAC-adressen är 48 bitar lång
+och prefixet är hälften av det dvs 24 bitar. Leverantören använder
+de 24 övriga bitarna för att differentiera mellan maskiner men även anslutningskort för ethernet.
+
+Många prefix reserverades från första början för olika användningar. Ett exempel på
+sådan användning är multicast i IP:nätverk där adressen 224.20.20.2 nominerar
+de maskiner som är medlemmar av en viss grupp.
+
+Varför syns det inte någon förändring i ARP-tabellen efter att
+ha försökt ping:a specifik maskin bortanför utgående anslutning ?
+PC01 har i ARP:tabellen lagt till VMrouter:maskinens MAC-adress.
+
+\section{Trafikspårning}
+\label{sec:wireshark_usage}
+
+Vilket protokoll använder ping\footnote{se man -s 8 ping} ? ICMP:s echo:begäran (ICMP typ 8) och ICMP:s motsvarande svarspaket (ICMP typ 0.)
+
+Eftersom trafik till andra maskiner än de fyra som är direkt åtkomliga i ``Client network'' skickas via
+ ``VMrouter'' behövs enbart den maskinens MAC:adress i ARP:tabellen (arp funktionen i operativsystemet hanterar
+next-hop:adresser.)\@10.204.20.1 är inte någon av dem.
+
+\section{DHCP}
+\label{sec:dhcp_konf}
+
+Jag flyttade ``pc01'' till  ``Server network'' sedan klagade den maskinen på ``jag är bortkopplad !''.
+Dessutom fick den inte någon ny IP:adress eftersom det inte finns någon ``DHCP'' tjänst i det nätet.
+
+Däremot sänds det på det nätet ut ett antal ``DHCP Discover''.
+
+Normalt sett skickas ``broadcast'':paket (mottagaradress 255.255.255.255 med avsändare 0.0.0.0) till port 67 från port 68 med UDP från
+den klient som vill ha en ny adress (``DHCP Request''). Dhcp:kontrollanten svarar med ett ``DHCP ACK'' från sin
+egen IPv4:adress till klientens MAC-adress med klientens korrekta IPv4:adress och andra optioner som exempelvis
+korrekt DNS:maskin och DNS:domännamn i samma paket.
+
+\newpage
+
+\subsection{loggar}
+
+``/var/lib/dhcp/dhcpd.leases'' innehåller uppgifter om vilka klienter som har fått
+automatisk tilldelade adresser via ``range'':uppgiften. Om maskinen inte syns i leases och
+har en statiskt tilldelad adress så är det fullt normalt - dpcpd.leases har inte
+uppgifter om maskiner vars adresser är statiskt tilldelade
+som exempelvis för pc01:
+
+\definecolor{light-gray}{gray}{0.95}
+
+\lstset{basicstyle=\footnotesize,
+  captionpos=b,
+  backgroundcolor=\color{light-gray},
+  extendedchars=true,
+  breaklines=true
+}
+\begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf}]
+host  pc01 {
+    hardware ethernet 00:50:56:36:16:67;
+    fixed-address 192.168.1.11;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={/var/lib/dhcp/dhcpd.leases}]
+lease 192.168.1.11 {
+  starts 5 2019/03/29 11:25:55;
+  ends 5 2019/03/29 11:35:55;
+  cltt 5 2019/03/29 11:25:55;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:56:36:16:67;
+  client-hostname "pc01";
+}
+\end{lstlisting}
+
+\section{broadcastdomäner}
+\label{sec:broadcastdomains}
+
+VMrouter borde vara ansluten till tre st (det lokala arbetsgruppsnätet, Server network och Client network.)
+
+\section{DNS:konfiguration}
+\label{sec:dns_konf}
+
+\begin{lstlisting}[caption={Några frågor, dig +search www}]
+; <<>> DiG 9.9.4-RedHat-9.9.4-73.el7_6 <<>> +search www
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 63149
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;www.b18steni.it119g.nsa.his.se.	IN	A
+
+;; ANSWER SECTION:
+www.b18steni.it119g.nsa.his.se.	10 IN	CNAME	webserver01.b18steni.it119g.nsa.his.se.
+webserver01.b18steni.it119g.nsa.his.se.	10 IN A	192.168.2.21
+
+;; AUTHORITY SECTION:
+b18steni.it119g.nsa.his.se. 10	IN	NS	ns01.b18steni.it119g.nsa.his.se.
+
+;; ADDITIONAL SECTION:
+ns01.b18steni.it119g.nsa.his.se. 10 IN	A	192.168.2.22
+
+;; Query time: 0 msec
+;; SERVER: 192.168.2.22#53(192.168.2.22)
+;; WHEN: fre mar 29 13:32:30 CET 2019
+;; MSG SIZE  rcvd: 136
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Några frågor, dig -t NS b18steni.it119g.nsa.his.se.}]
+; <<>> DiG 9.9.4-RedHat-9.9.4-73.el7_6 <<>> -t NS b18steni.it119g.nsa.his.se.
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 20764
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;b18steni.it119g.nsa.his.se.	IN	NS
+
+;; ANSWER SECTION:
+b18steni.it119g.nsa.his.se. 10	IN	NS	ns01.b18steni.it119g.nsa.his.se.
+
+;; ADDITIONAL SECTION:
+ns01.b18steni.it119g.nsa.his.se. 10 IN	A	192.168.2.22
+
+;; Query time: 0 msec
+;; SERVER: 192.168.2.22#53(192.168.2.22)
+;; WHEN: fre mar 29 13:34:03 CET 2019
+;; MSG SIZE  rcvd: 90
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Några frågor, dig -t A  ns01.b18steni.it119g.nsa.his.se.}]
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 38195
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;ns01.b18steni.it119g.nsa.his.se. IN	A
+
+;; ANSWER SECTION:
+ns01.b18steni.it119g.nsa.his.se. 10 IN	A	192.168.2.22
+
+;; AUTHORITY SECTION:
+b18steni.it119g.nsa.his.se. 10	IN	NS	ns01.b18steni.it119g.nsa.his.se.
+
+;; Query time: 0 msec
+;; SERVER: 192.168.2.22#53(192.168.2.22)
+;; WHEN: fre mar 29 13:35:29 CET 2019
+;; MSG SIZE  rcvd: 90
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Några frågor, dig -t SOA @ns1.google.com. google.com.}]
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 24539
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 4, ADDITIONAL: 9
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;google.com.			IN	SOA
+
+;; ANSWER SECTION:
+google.com.		60	IN	SOA	ns1.google.com. dns-admin.google.com. 240952484 900 900 1800 60
+
+;; AUTHORITY SECTION:
+google.com.		345600	IN	NS	ns2.google.com.
+google.com.		345600	IN	NS	ns4.google.com.
+google.com.		345600	IN	NS	ns1.google.com.
+google.com.		345600	IN	NS	ns3.google.com.
+
+;; ADDITIONAL SECTION:
+ns2.google.com.		345600	IN	A	216.239.34.10
+ns2.google.com.		345600	IN	AAAA	2001:4860:4802:34::a
+ns4.google.com.		345600	IN	A	216.239.38.10
+ns4.google.com.		345600	IN	AAAA	2001:4860:4802:38::a
+ns1.google.com.		345600	IN	A	216.239.32.10
+ns1.google.com.		345600	IN	AAAA	2001:4860:4802:32::a
+ns3.google.com.		345600	IN	A	216.239.36.10
+ns3.google.com.		345600	IN	AAAA	2001:4860:4802:36::a
+
+;; Query time: 25 msec
+;; SERVER: 216.239.32.10#53(216.239.32.10)
+;; WHEN: fre mar 29 13:37:10 CET 2019
+;; MSG SIZE  rcvd: 333
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Några frågor, 'dig -t A www' med eller utan '+search'}]
+dig +search www
+
+; <<>> DiG 9.10.3-P4-Ubuntu <<>> +search www
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 61521
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;www.b18steni.it119g.nsa.his.se.	IN	A
+
+;; ANSWER SECTION:
+www.b18steni.it119g.nsa.his.se.	10 IN	CNAME	webserver01.b18steni.it119g.nsa.his.se.
+webserver01.b18steni.it119g.nsa.his.se.	10 IN A	192.168.2.21
+
+;; AUTHORITY SECTION:
+b18steni.it119g.nsa.his.se. 10	IN	NS	ns01.b18steni.it119g.nsa.his.se.
+
+;; ADDITIONAL SECTION:
+ns01.b18steni.it119g.nsa.his.se. 10 IN	A	192.168.2.22
+
+;; Query time: 0 msec
+;; SERVER: 192.168.2.22#53(192.168.2.22)
+;; WHEN: Fri Mar 29 13:42:24 CET 2019
+;; MSG SIZE  rcvd: 136
+
+dig www
+
+; <<>> DiG 9.10.3-P4-Ubuntu <<>> www
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 44523
+;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;www.				IN	A
+
+;; AUTHORITY SECTION:
+.			10692	IN	SOA	a.root-servers.net. nstld.verisign-grs.com. 2019032900 1800 900 604800 86400
+
+;; Query time: 2 msec
+;; SERVER: 192.168.2.22#53(192.168.2.22)
+;; WHEN: Fri Mar 29 13:42:33 CET 2019
+;; MSG SIZE  rcvd: 107
+\end{lstlisting}
+
+\newpage
+\subsection{Betydelsen av punkt eller inte i frågor med dig}
+
+Dig:programmet kan använda den sökdomän i DNS som maskinerna är konfigurerade för, ``b18steni.it119g.nsa.his.se'' i mitt fall och ``xxxx.it119g.nsa.his.se''
+för övriga klasskamrater.
+Dock kräver ``dig'' att flaggan ``+search'' specificeras då eller att användaren självt specificerar domännamnet.
+
+De här frågorna är ekvivalenta:
+\begin{verbatim}
+dig www.
+dig www
+\end{verbatim}
+och dessa:
+\begin{verbatim}
+dig www.b18steni.it119g.nsa.his.se.
+dig +search www
+\end{verbatim}
+
+\begin{lstlisting}[caption={/etc/bind/named.conf.local}]
+//
+// avsedd for ns01.b18steni.it119g.nsa.his.se
+//
+// cfe-regler fran 192.168.2.24
+// senast uppdatering av policy:
+//
+
+zone "b18steni.it119g.nsa.his.se" {
+type master;
+file "/etc/bind/zones/db.b18steni";
+};
+
+zone "168.192.in-addr.arpa" {
+type master;
+file "/etc/bind/zones/db.b18steni_192_rev";
+};
+\end{lstlisting}
+
+\begin{lstlisting}[caption={/etc/bind/named.conf.options}]
+//
+// avsedd for ns01.b18steni.it119g.nsa.his.se
+//
+// cfe-regler fran 192.168.2.24
+// senast uppdatering av policy:
+//
+
+acl my_computers { 192.168.0.0/16; 10.204.12.0/24; 10.204.20.0/24; };
+
+options {
+    directory "/var/cache/bind";
+    dnssec-validation auto;
+
+    forwarders {
+           10.0.252.201;
+           10.0.252.202;
+    };
+
+    listen-on-v6 { any; };
+    auth-nxdomain no;    # conform to RFC1035
+
+    allow-recursion { my_computers; };
+    allow-query { any; };
+};
+\end{lstlisting}
+
+\printbibliography{}
+\end{document}
