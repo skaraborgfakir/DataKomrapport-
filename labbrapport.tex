@@ -1,43 +1,50 @@
+%% Time-stamp: <2019-04-08 17:45:02 stefan>
+%%
 \documentclass[11pt,a4paper]{article}
-\usepackage[swedish]{babel}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 
 %% \renewcommand{\baselinestretch}{1.5}
 %% \linespread{1.5}
 
 % smallare marginal för anteckningar
-\usepackage[marginparwidth=30pt]{geometry}
+%\usepackage[marginparwidth=30pt]{geometry}
 
+%%
+%% använd Times istället för Computer Modern
 \usepackage{mathptmx}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+%% \usepackage{mathpazo}
 
+% babel
+\usepackage[swedish]{babel}
+
+%\usepackage[flushleft]{threeparttable}
 \usepackage{booktabs}  %% bottomrule/toprule !
 \usepackage{verbatim}
+\usepackage{hyperref}
 \usepackage{xcolor}
-%% \usepackage[flushleft]{threeparttable}
-%% \usepackage{hyperref}
 
 \usepackage{footnote}
+%% mer användbara tabeller
 \usepackage{tabu}
 
-
+%% programkodslistningar
 \usepackage{listings}
-\usepackage[fleqn]{mathtools}
 
-\usepackage{pgf}
-\newcommand{\BinaryAdd}[2]{%
-    {#1}_2 + {#2}_2 = \pgfmathbin{0b#1 + 0b#2}% compute binary addition
-    \pgfmathresult_2% format output to make it clear it is base 2
-}%
+% \usepackage[fleqn]{mathtools}
+% \usepackage{pgf}
+% \newcommand{\BinaryAdd}[2]{%
+%     {#1}_2 + {#2}_2 = \pgfmathbin{0b#1 + 0b#2}% compute binary addition
+%     \pgfmathresult_2% format output to make it clear it is base 2
+% }%
 
-\title{Labbrapport IT119G}
-\author{Stefan Niskanen Skoglund\\IT119G\\19670927--5934}
 \usepackage{csquotes}
 \usepackage[style=alphabetic,backend=biber]{biblatex}
 \addbibresource[location=local]{bib.bib}
-%% \addbibresource[location=remote]{https://drive.google.com/uc?id=0B1jZYhxUIQloSkZvNVRoYU9WRlU&export=download}
-%%                               https://drive.google.com/open?id=1j-K4JcICMceABPmD4DrHYimv5mZ4iELp
-%% \addbibresource[location=remote]{https://drive.google.com/uc?id=1j-K4JcICMceABPmD4DrHYimv5mZ4iELp&export=download}
+
+\title{Labbrapport IT119G}
+\author{Stefan Niskanen Skoglund\\IT119G\\19670927--5934}
 
 \begin{document}
 
@@ -138,7 +145,8 @@ som exempelvis för pc01:
   captionpos=b,
   backgroundcolor=\color{light-gray},
   extendedchars=true,
-  breaklines=true
+  breaklines=true,
+  literate={ö}{{\"o}}1 {å}{{\aa}}1 {Å}{{\aA}}l {ä}{{\"a}}1 {Ö}{{\"O}}1 {Ä}{{\"A}}1
 }
 \begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf}]
 host  pc01 {
@@ -348,11 +356,23 @@ dig www.b18steni.it119g.nsa.his.se.
 dig +search www
 \end{verbatim}
 
+\section{DNS:konfiguration}\label{sec:dns_config}
+
+\section{WEB:tjänst}\label{sec:httpd_config}
+
+\appendix
+
+I systemet modifierade filer inklusive DNS zoner.
+
+\section{DNS}\label{sec:appendix_bind_config}
+
+Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
+
 \begin{lstlisting}[caption={/etc/bind/named.conf.local}]
 //
-// avsedd for ns01.b18steni.it119g.nsa.his.se
+// avsedd för ns01.b18steni.it119g.nsa.his.se
 //
-// cfe-regler fran 192.168.2.24
+// cfe-regler från 192.168.2.24
 // senast uppdatering av policy:
 //
 
@@ -369,9 +389,9 @@ file "/etc/bind/zones/db.b18steni_192_rev";
 
 \begin{lstlisting}[caption={/etc/bind/named.conf.options}]
 //
-// avsedd for ns01.b18steni.it119g.nsa.his.se
+// avsedd för ns01.b18steni.it119g.nsa.his.se
 //
-// cfe-regler fran 192.168.2.24
+// cfe-regler från 192.168.2.24
 // senast uppdatering av policy:
 //
 
@@ -394,5 +414,10 @@ options {
 };
 \end{lstlisting}
 
+\section{DNS zoner}\label{sec:appendix_dns_zones}
+
+\texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
+\texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
+och \texttt{1.168.192.in-addr.arpa}.
 \printbibliography{}
 \end{document}
