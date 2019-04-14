@@ -360,6 +360,48 @@ dig +search www
 
 \section{WEB:tjänst}\label{sec:httpd_config}
 
+DNS i ns01 får frågan:
+Jag vill få en A:uppgift för maskinen ``webserver01.b18steni.it119g.nsa.his.se''.
+Har du någrar data om detta ?
+BIND:programmet svarar med motsvarande A:uppgift dvs vad ``webserver01.b18steni.it119g.nsa.his.se''
+heter och vilken IP:adress den har.
+
+---
+; <<>> DiG 9.10.3-P4-Ubuntu <<>> @192.168.2.22 webserver01.b18steni.it119g.nsa.his.se
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 9893
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;webserver01.b18steni.it119g.nsa.his.se.	IN A
+
+;; ANSWER SECTION:
+webserver01.b18steni.it119g.nsa.his.se.	10 IN A	192.168.2.21
+
+;; AUTHORITY SECTION:
+b18steni.it119g.nsa.his.se. 10	IN	NS	ns01.b18steni.it119g.nsa.his.se.
+
+;; ADDITIONAL SECTION:
+ns01.b18steni.it119g.nsa.his.se. 10 IN	A	192.168.2.22
+
+;; Query time: 0 msec
+;; SERVER: 192.168.2.22#53(192.168.2.22)
+;; WHEN: Sun Apr 14 17:02:20 CEST 2019
+;; MSG SIZE  rcvd: 118
+---
+Det protokoll från applikationsnivån som används är DNS (eller domain.)
+Transportprotokollet för sådana här frågor är vanligtvis UDP med det
+undantaget att vissa frågor pga svaren blir för stora för ett UDP:paket
+sänds med TCP. Min DNS:tjänst i ns01 dvs 192.168.2.22.
+Avsändningsporten är 53683 och mottagande 53 (klienten.)
+Från klienten ser det ut som att svaret kommer från port 53 destinerat
+till 53683.
+
 \appendix
 
 I systemet modifierade filer inklusive DNS zoner.
