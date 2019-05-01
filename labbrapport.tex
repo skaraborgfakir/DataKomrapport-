@@ -1,7 +1,7 @@
 %%
-%% Time-stamp: <2019-04-16 18:21:35 stefan>
+%% Time-stamp: <2019-05-01 17:59:18 stefan>
 %%
-\documentclass[swedish,11pt,a4paper]{article}
+\documentclass[swedish,10pt,a4paper]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -23,7 +23,7 @@
 \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
 
 \usepackage{verbatim} %% verbatim miljö
-% \usepackage{hyperref}
+
 % \usepackage{footnote}
 
 \usepackage{color}
@@ -44,6 +44,11 @@
 %% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
 \usepackage{booktabs}                  %% bottomrule/toprule för tabellerna
 
+%% PDF-inkludering
+\usepackage{graphicx}
+
+\usepackage{pst-pdf}
+
 % \usepackage[fleqn]{mathtools}
 % \usepackage{pgf}
 % \newcommand{\BinaryAdd}[2]{%
@@ -51,7 +56,7 @@
 % \pgfmathresult_2% format output to make it clear it is base 2
 % }%
 
-%%   \usepackage[style=alphabetic,backend=biber]{biblatex} %% alfabetisk stil [DKatz1990]
+\usepackage{hyperref} %% hyperlänkar mellan text och bibliografin
 \usepackage[style=authoryear,backend=biber]{biblatex} %%
 \addbibresource[location=local]{bib.bib}
 \addbibresource[location=local]{rfc.bib}
@@ -64,9 +69,34 @@
 
 \maketitle
 
+%\includegraphics{network_diagram.tex}
+%\includegraphics[height=200pt]{network_diagram_1.pdf}
+%\includegraphics[width=\baselinewidth]{home_stefan_Skrivbord_IT119G_IT119G_labbrapport_network_diagram-job_176.pdf}
+\begin{figure}
+  \centering
+  \caption{Nätverkets organisation}
+  \fbox{\includegraphics[width=\textwidth, clip, viewport=0 450 600 850 ]{network_diagram_export.pdf}}
+\end{figure}
 
-\section{Statisk IP:adressering}\label{sec:statisk_ip_adressering}
+\section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
 
+
+Vilket protokoll används i ett nätverk där datorer vill översätta IPv4:s logiska adresser till något
+som hårdvaran kan hantera? ARP = address resolution protocol.
+
+RFC826 \footcite{rfc826} beskriver motivationen bakom och de tidiga orsakerna till ARP:s
+utveckling. En viktig detalj i ARP är det faktum att det från
+början utvecklades för DIX men tidigt generaliserades för att stödja
+andra nätverkstekniker än DIX. DIX kom att standardiseras som IEEE 802.3 10Base5.
+
+Generaliteten i ARP innebär att protokollet inte behövde förändras
+när Ethernet bytte överföringsteknologi från en bussorienterad överföring
+som i grunden fungerar som radiovågor till dagens stjärnformade nät där individuella datorer är
+direkt anslutna till en för den reserverad anslutning i en sk.\ växel, anser jag.
+
+% En växel är speciellt konstruerad för att vidarebefordra trafik från flera datorer antingen
+% till dator som är ansluten i samma växel eller vidare via andra liknanden enheter till
+% avsedd mottagare.
 
 
 \subsection{översättning av IP-adress till de motsvarande MAC:adresserna}\label{trans_ip_mac}
@@ -86,26 +116,28 @@
   \end{tabular}
 \end{table}
 
-Vilket protokoll används i ett nätverk där datorer vill översätta IPv4:s logiska adresser till något
-som hårdvaran kan hantera? ARP = address resolution protocol.
+MAC-adressen för PC01 och webserver01 gäller för virtuella nätanslutningar som
+definieras av ESXi och tilldelas till virtuella maskiner i den värden
+men de skiljer sig från vilken OUI som de tillhör.
+
+\subsubsection{OUI = Organizationally Unique Identifier}
+\label{subsubsec:oui}
+
+OUI\footcite{rfc5342} är definierat som de första 24 binära bitarna av en adress dvs första
+hälften av en adress.
+
+Det är det sätt som adresser i MAC:systemet fördelas mellan ansvariga användare
+där de fritt kan välja de 24 lägre bitarna i adressen.
+
+En datorleverantör ger sina tillverkade maskiner en individuellt MAC:adress genom
+ett 24 bitar långt serienummer som konkateneras med sin OUI.\@ IANA använder
+sina egna OUI exempelvis som prefix i samband med IP:s gruppsändningsprotokoll men även
+som ett sätt för en protokollansvariga organisation exv en programleverantör
+som vill konstruera ett proprieärt protokoll dess egen adressrymd. Utökningarna i
+ppp \footcite{rfc2153} är ett exempel på ett detta.
+
 
 Vad kan man säga om vem som är leverantör av en maskin om man studerar en MAC:adress i ARP:tabellen?
-
-\begin{table}
-  \centering
-  \caption{maskinnamn, MAC-adresser och leverantör}
-  \begin{tabular}{|sss|}
-    \bottomrule
-    maskinnamn         & MAC-adress        & Ansvarig leverantör\\
-    ESXi (vmnic0)      & 6c:0b:84:08:fa:79 & Universal Global Scientific Industrial Co.,Ltd.\\
-    PC01 (e160)        & 00:50:56:36:16:67 & VMware Inc\\
-    webserver01 (e160) & 00:0c:29:4a:cc:d2 & VMware Inc\\
-    dhcp01 (e160)      & 00:0c:29:9e:43:6a & VMware Inc\\
-    10.204.20.1        & bc:ea:fa:11:94:33 & Hewlett-Packard\\
-    10.204.8.1         & bc:ea:fa:11:94:47 & Hewlett-Packard\\
-    \toprule
-  \end{tabular}
-\end{table}
 
 % \begin{tablenotes}
 % \item [1] Lenovo PC
@@ -113,7 +145,6 @@ Vad kan man säga om vem som är leverantör av en maskin om man studerar en MAC
 % \item [3] Hewlett-Packard växel? Anslutning i gateway:maskin för gruppen 10.204.8.0
 % \item [4] Har använt mer än en datorgrupp
 % \end{tablenotes}
-
 
 MAC-adresser i klassisk Ethernet som även är känt som DIX:standarden efter
 de bakomliggande leverantörerna fördelar användbara adresser genom att tilldela
@@ -151,7 +182,7 @@ den klient som vill ha en ny adress (``DHCP Request''). Dhcp:kontrollanten svara
 egen IPv4:adress till klientens MAC-adress med klientens korrekta IPv4:adress och andra optioner som exempelvis
 korrekt DNS:maskin och DNS:domännamn i samma paket.
 
-\newpage
+
 
 \subsection{loggar}
 
@@ -360,7 +391,6 @@ VMrouter borde vara ansluten till tre st (det lokala arbetsgruppsnätet, Server 
 %   ;; MSG SIZE  rcvd: 107
 % \end{lstlisting}
 
-\newpage
 \subsection{Betydelsen av punkt eller inte i frågor med dig}
 
 Dig:programmet kan använda den sökdomän i DNS som maskinerna är konfigurerade för, ``b18steni.it119g.nsa.his.se'' i mitt fall och ``xxxx.it119g.nsa.his.se''
@@ -423,6 +453,30 @@ sänds med TCP. Min DNS:tjänst i ns01 dvs 192.168.2.22.
 Avsändningsporten är 53683 och mottagande 53 (klienten.)
 Från klienten ser det ut som att svaret kommer från port 53 destinerat
 till 53683.
+
+
+\section{Uppgifter --- statisk IP:adressering}\label{sec:statisk_ip_adressering}
+
+
+\begin{table}
+  \centering
+  \caption{maskinnamn, MAC-adresser och leverantör}
+  \begin{tabular}{|sss|}
+    \bottomrule
+    maskinnamn         & MAC-adress        & Ansvarig leverantör\\
+    ESXi (vmnic0)      & 6c:0b:84:08:fa:79 & Universal Global Scientific Industrial Co.,Ltd.\\
+    PC01 (e160)        & 00:50:56:36:16:67 & VMware Inc\\
+    webserver01 (e160) & 00:0c:29:4a:cc:d2 & VMware Inc\\
+    dhcp01 (e160)      & 00:0c:29:9e:43:6a & VMware Inc\\
+    10.204.20.1        & bc:ea:fa:11:94:33 & Hewlett-Packard\\
+    10.204.8.1         & bc:ea:fa:11:94:47 & Hewlett-Packard\\
+    \toprule
+  \end{tabular}
+\end{table}
+
+
+\section{TCP-anslutningars faser}\label{sec:tcp_phases}
+
 
 \appendix
 
