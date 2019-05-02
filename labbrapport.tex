@@ -35,7 +35,8 @@
   backgroundcolor=\color{light-gray},
   extendedchars=true,
   breaklines=true,
-  literate={ö}{{\"o}}1 {å}{{\aa}}1 {Å}{{\aA}}l {ä}{{\"a}}1 {Ö}{{\"O}}1 {Ä}{{\"A}}1
+  literate={ö}{{\"o}}1 {å}{{\aa}}1 {Å}{{\aA}}l {ä}{{\"a}}1 {Ö}{{\"O}}1 {Ä}{{\"A}}1,
+  language=Java
 }
 
 \usepackage{colortbl}
@@ -478,26 +479,35 @@ till 53683.
 \section{TCP-anslutningsfaser för en HTTP:överföring }\label{sec:tcp_phases_http}
 
 TCP definieras som en strömbaserad tillförlitlig förbindelse där strömbaserad ska ses som
-att förbindelsen ska ses som ett flöde utan några för applikationen direkt synliga gränser.
+att förbindelsen ses som ett flöde utan några för applikationen direkt synliga gränser.
 
-TCP är tillförlig i betydelsen att avsändare och mottagare ska få rapport det blir
-ett avbrott i förbindelsen som medför att det hos mottagaren saknas data som skulle ha varit med.
-Data som leveraras till mottagande program får inte vara förvanskat och alla data ska överlämnas
+TCP är tillförlig i betydelsen att avsändare och mottagare ska meddelas om rapport det blir
+ett avbrott i förbindelsen som medför att det hos mottagaren saknas data.
+Data som leveraras till mottagande program får ävenså inte vara förvanskat och alla data ska överlämnas
 i samma ordning som när det överlämnades av avsändande program till sin maskins TCP:modul.
 
 TCP:modul ska ses som den del av operativsystem eller det användareprogram som implementerar TCP (och 
-underliggande moduler exv IP och ARP.)
-
-DECnet är ett exempel där användaren installerar ett separat program för att implementera
-TCP ovanför en otillförlitlig transport via DECnet (eller X25.)
+underliggande moduler exv IP och ARP.) DECnet är ett exempel där användaren har installerat ett
+separat program för att implementera TCP ovanför en otillförlitlig transport via IP, DECnet eller X25.
 
 \appendix
 
-I systemet modifierade filer inklusive DNS zoner.
-
 \section{DNS}\label{sec:appendix_bind_config}
 
+I systemet modifierade filer inklusive DNS zoner.
+
 Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
+
+\begin{lstlisting}[caption={/etc/bind/named.conf}]
+  //
+  // avsedd för ns01.b18steni.it119g.nsa.his.se
+  //
+  // cfe-regler från 192.168.2.24
+  // senast uppdatering av policy:
+  //
+  include "/etc/bind/named.conf.options";
+  include "/etc/bind/named.conf.local";
+\end{lstlisting}
 
 \begin{lstlisting}[caption={/etc/bind/named.conf.local}]
   //
@@ -526,30 +536,51 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
   // senast uppdatering av policy:
   //
 
-  acl my_computers { 192.168.0.0/16; 10.204.12.0/24; 10.204.20.0/24; };
+  acl my_computers {192.168.0.0/16;10.204.12.0/24;10.204.20.0/24;};
 
   options {
     directory "/var/cache/bind";
     dnssec-validation auto;
 
     forwarders {
-      10.0.252.201;
-      10.0.252.202;
+      10.0.252.201; // använder labbets DNS:maskiner för 
+      10.0.252.202; // externa frågor
     };
 
     listen-on-v6 { any; };
     auth-nxdomain no;    \# conform to RFC1035
 
-    allow-recursion { my_computers; };
-    allow-query { any; };
+    allow-recursion { my_computers; }; // neka att jobba åt andra
+    allow-query { any; };              // men andra kan ställa frågor
   };
 \end{lstlisting}
 
 \section{DNS zoner}\label{sec:appendix_dns_zones}
 
-\texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
-\texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
-och \texttt{1.168.192.in-addr.arpa}.
+\begin{lstlisting}[language=sh,caption={/etc/bind/zones/db.b18steni.it119g.nsa.his.se}]
+  # root-domain
+  TTL 2000
+  @ IN SOA ns01.b18steni.it119g.nsa.his.se. stefan.b18steni.it119g.nsa.his.se.
+               (2019050218
+                14400 
+                3600 
+                1209600 
+                600)
+\end{lstlisting}
+
+\begin{lstlisting}[language=sh,caption={/etc/bind/zones/db.1.168.192.in-addr.arpa}]
+  # reverse mapp ip-adresserna 192.168.1.x -> maskin-namn
+  $TTL 2000
+\end{lstlisting}
+
+\begin{lstlisting}[caption={/etc/bind/zones/db.2.168.192.in-addr.arpa}]
+  # reverse mapp ip-adresserna 192.168.2.x -> maskin-namn
+  $TTL 2000
+\end{lstlisting}
+
+% \texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
+% \texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
+% och \texttt{1.168.192.in-addr.arpa}.
 
 \printbibliography{}
 \end{document}
