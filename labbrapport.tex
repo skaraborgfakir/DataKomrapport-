@@ -1,5 +1,5 @@
 %%
-%% Time-stamp: <2019-05-06 13:47:49 nsa>
+%% Time-stamp: <2019-05-06 13:58:03 nsa>
 %%
 
 \documentclass[swedish,10pt,a4paper]{article}
@@ -192,8 +192,6 @@ Normalt sett skickas ``broadcast'':paket (mottagaradress 255.255.255.255 med avs
 den klient som vill ha en ny adress (``DHCP Request''). Dhcp:kontrollanten svarar med ett ``DHCP ACK'' från sin
 egen IPv4:adress till klientens MAC-adress med klientens korrekta IPv4:adress och andra optioner som exempelvis
 korrekt DNS:maskin och DNS:domännamn i samma paket.
-
-
 
 \subsection{loggar}
 
@@ -633,6 +631,19 @@ log-facility local7;
 subnet 192.168.1.0 netmask 255.255.255.0 {
   range 192.168.1.10 192.168.1.20;
   option routers 192.168.1.1;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={/var/lib/dhcp/dhcpd.leases}]
+lease 192.168.1.11 {
+  starts 5 2019/03/29 11:25:55;
+  ends 5 2019/03/29 11:35:55;
+  cltt 5 2019/03/29 11:25:55;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:56:36:16:67;
+  client-hostname "pc01";
 }
 \end{lstlisting}
 
