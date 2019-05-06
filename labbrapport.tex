@@ -1,16 +1,14 @@
 %%
-%% Time-stamp: <2019-05-01 17:59:18 stefan>
+%% Time-stamp: <2019-05-06 13:47:49 nsa>
 %%
+
 \documentclass[swedish,10pt,a4paper]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
-%% \renewcommand{\baselinestretch}{1.5}
-%% \linespread{1.5}
-
 % smallare marginal för anteckningar
-% \usepackage[marginparwidth=30pt]{geometry}
+%% \usepackage[marginparwidth=30pt]{geometry}
 
 %%
 %% använd Times istället för Computer Modern
@@ -22,12 +20,20 @@
 
 \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
 
-\usepackage{verbatim} %% verbatim miljö
+\usepackage{verbatim}         %% verbatim miljö
 
-% \usepackage{footnote}
+\usepackage{booktabs}         %% bottomrule/toprule !
+\usepackage{xcolor}           %% \definecolor, den gråa bakgrunden i kodlistningarna
+\definecolor{light-gray}{gray}{0.95}
+%% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
+\usepackage{hyperref}         %% hyperlänkar mellan text och bibliografin
+
+%% \usepackage{footnote}
 
 \usepackage{color}
-\usepackage[table]{xcolor} %% \definecolor, den gråa bakgrunden i kodlistningarna
+
+%% \usepackage{tabularx}               %% mer användbara tabeller
+\usepackage{tabu}                      %% mer användbara tabeller
 
 \usepackage{listings} %% programkodslistningar
 \lstset{basicstyle=\footnotesize,
@@ -39,14 +45,11 @@
 }
 
 \usepackage{colortbl}
-%% \usepackage{tabularx}                  %% mer användbara tabeller
-\usepackage{tabu}                      %% mer användbara tabeller
-%% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
-\usepackage{booktabs}                  %% bottomrule/toprule för tabellerna
+
+%\usepackage[fleqn]{mathtools}
 
 %% PDF-inkludering
 \usepackage{graphicx}
-
 \usepackage{pst-pdf}
 
 % \usepackage[fleqn]{mathtools}
@@ -56,7 +59,7 @@
 % \pgfmathresult_2% format output to make it clear it is base 2
 % }%
 
-\usepackage{hyperref} %% hyperlänkar mellan text och bibliografin
+%% \usepackage[style=alphabetic,backend=biber]{biblatex}
 \usepackage[style=authoryear,backend=biber]{biblatex} %%
 \addbibresource[location=local]{bib.bib}
 \addbibresource[location=local]{rfc.bib}
@@ -69,17 +72,26 @@
 
 \maketitle
 
-%\includegraphics{network_diagram.tex}
+I arbetet har jag använt ett verktyg för systemadministration CFEngine
+som ett stöd för korrekt inställning av isc:s DHCP:kontrollant
+och deras DNS tjänst.
+Dessutom används verktyget för att aktivera uppgraderingar av programvaran
+förutom för pc01/pc02 på de virtuella maskinerna ns01,webserver01 och dhcp01.
+Därav de extra två maskinerna cfengine och vcs \ref{network_organization} i ``server network''.
+VCS:maskinen är värd för git som används av cfengine för att sina data.
+Samma git:installation används även i rapportskrivningen.
+
+% \includegraphics{network_diagram.tex}
 %\includegraphics[height=200pt]{network_diagram_1.pdf}
 %\includegraphics[width=\baselinewidth]{home_stefan_Skrivbord_IT119G_IT119G_labbrapport_network_diagram-job_176.pdf}
 \begin{figure}
   \centering
-  \caption{Nätverkets organisation}
+  \caption{Labbnätverkets organisation}
+  \label{network_organization}
   \fbox{\includegraphics[width=\textwidth, clip, viewport=0 450 600 850 ]{network_diagram_export.pdf}}
 \end{figure}
 
 \section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
-
 
 Vilket protokoll används i ett nätverk där datorer vill översätta IPv4:s logiska adresser till något
 som hårdvaran kan hantera? ARP = address resolution protocol.
@@ -97,7 +109,6 @@ direkt anslutna till en för den reserverad anslutning i en sk.\ växel, anser j
 % En växel är speciellt konstruerad för att vidarebefordra trafik från flera datorer antingen
 % till dator som är ansluten i samma växel eller vidare via andra liknanden enheter till
 % avsedd mottagare.
-
 
 \subsection{översättning av IP-adress till de motsvarande MAC:adresserna}\label{trans_ip_mac}
 
@@ -192,7 +203,7 @@ har en statiskt tilldelad adress så är det fullt normalt - dpcpd.leases har in
 uppgifter om maskiner vars adresser är statiskt tilldelade
 som exempelvis för pc01:
 
-\definecolor{light-gray}{gray}{0.95}
+%% \definecolor{light-gray}{gray}{0.95}
 
 % \lstset{basicstyle=\footnotesize,
 % captionpos=b,
@@ -457,7 +468,6 @@ till 53683.
 
 \section{Uppgifter --- statisk IP:adressering}\label{sec:statisk_ip_adressering}
 
-
 \begin{table}
   \centering
   \caption{maskinnamn, MAC-adresser och leverantör}
@@ -477,6 +487,14 @@ till 53683.
 
 \section{TCP-anslutningars faser}\label{sec:tcp_phases}
 
+Tre-stegs handskakning
+\begin{verbatim}
+--
+SYN
+SYN+ACK
+ACK
+--
+\end{verbatim}
 
 \appendix
 
@@ -537,6 +555,86 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
 \texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
 \texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
 och \texttt{1.168.192.in-addr.arpa}.
+
+\section{isc dhcp}\label{sec:appendix_isc_dhcpd_config}
+
+\begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (pool-baserad allokering av adresser)]
+#
+# avsedd för dhcp01.b18steni.it119g.nsa.his.se
+#
+# def.json tidsstämpel: Time-stamp: <2019-05-06 12:09:15 nsa>
+# host.json tidsstämpel: Time-stamp: <2019-03-29 13:17:21 nsa>
+# senast uppdatering av policy: Mon May  6 12:13:17 2019
+#
+# cfe-regler från 192.168.2.24
+#
+
+ddns-update-style none;
+
+option routers 192.168.1.1;
+option domain-name "b18steni.it119g.nsa.his.se";
+option domain-name-servers 192.168.2.22;
+
+option ntp-servers 194.58.203.20;
+default-lease-time 600;
+max-lease-time 7200;
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+authoritative;
+
+# Use this to send dhcp log messages to a different log file (you also
+# have to hack syslog.conf to complete the redirection).
+log-facility local7;
+
+
+#
+# utan static_dhcp_mapping
+#
+subnet 192.168.1.0 netmask 255.255.255.0 {
+  range 192.168.1.10 192.168.1.20;
+  option routers 192.168.1.1;
+}
+\end{lstlisting}
+\newpage
+\begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (statisk allokering av adresser)]
+#
+# avsedd för dhcp01.b18steni.it119g.nsa.his.se
+#
+# def.json tidsstämpel: Time-stamp: <2019-05-06 12:09:15 nsa>
+# host.json tidsstämpel: Time-stamp: <2019-03-29 13:17:21 nsa>
+# senast uppdatering av policy: Mon May  6 12:13:17 2019
+#
+# cfe-regler från 192.168.2.24
+#
+
+ddns-update-style none;
+
+option routers 192.168.1.1;
+option domain-name "b18steni.it119g.nsa.his.se";
+option domain-name-servers 192.168.2.22;
+
+option ntp-servers 194.58.203.20;
+default-lease-time 600;
+max-lease-time 7200;
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+authoritative;
+
+# Use this to send dhcp log messages to a different log file (you also
+# have to hack syslog.conf to complete the redirection).
+log-facility local7;
+
+
+#
+# utan static_dhcp_mapping
+#
+subnet 192.168.1.0 netmask 255.255.255.0 {
+  range 192.168.1.10 192.168.1.20;
+  option routers 192.168.1.1;
+}
+\end{lstlisting}
 
 \printbibliography{}
 \end{document}
