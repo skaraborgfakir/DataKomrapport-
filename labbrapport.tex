@@ -1,5 +1,5 @@
 %%
-%% Time-stamp: <2019-05-07 16:14:55 stefan>
+%% Time-stamp: <2019-05-07 23:14:43 nsa>
 %%
 
 \documentclass[swedish,10pt,a4paper]{article}
@@ -15,8 +15,8 @@
 \usepackage{mathptmx}
 %% \usepackage{mathpazo}
 
-\usepackage{csquotes}       %% babel är för svenska beroende av csquotes
 \usepackage[swedish]{babel} %% babel
+\usepackage{csquotes}       %% babel är för svenska beroende av csquotes
 
 \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
 
@@ -93,7 +93,32 @@ Samma git:installation används även i rapportskrivningen.
 
 \section{Adressering i OSI:s länk-lager}\label{sec:adressering_i_osis_data_link_layer}
 
-Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite{Spurgeon2000}
+Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite[kapitel 1]{Spurgeon2000}
+som ett svar på ett problem : nämligen hur XEROX nya uppfinning laserskrivaren
+skulle kunna anslutas till den nya typen av datorer från XEROX där författare, tekniker, 
+ingenjörer och programmerare har kunnat fått sin egen maskin, XEROX ALTO.
+
+Alto räknas som den första arbetsstationen i betydelsen en enanvändaredator med ett grafiskt
+användaregränssnitt, en stor katodstråleskärm, ett roternade skivminne
+och Doug Engelbarts pekdon, en mus.
+
+Robert Metcalfe anställdes vid PARC 1972 bland annat på grund av sina erfarenheter av ARPANET
+med avsikten att han skulle forska inom XEROX kontorsautomatiseringsprojekt.
+Metcalfes Ethernet patenterades 1974 med avsikten att det skulle vara en viktig
+komponent i XEROX produkter för kontoret.
+
+Metcalfe blev 1977--1978 frustrerad av XEROX oförmåga att bygga och sälja produkter som
+med den nya tekniken och att XEROX:s inställning till den var proprietär, ingen
+annan skulle få använda den i sin produkt.
+
+Metcalfe lämnade i slutet av 1978 XEROX med avsikten att i samarbete med andra
+företag övertala XEROX att acceptera att Ethernet skulle standardiseras
+och därmed bli tillgängligt som tillbehör till andra datorer än de från
+XEROX. Intel, Digital Equipment och XEROX bildade DIX:konsortiet som
+standardiserade Ethernet som IEEE 802.3 10base5.
+
+Digital Equipment  
+
 \section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
 
 Vilket protokoll används i ett nätverk där datorer vill översätta IPv4:s logiska adresser till något
