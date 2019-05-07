@@ -1,5 +1,5 @@
 %%
-%% Time-stamp: <2019-05-01 17:59:18 stefan>
+%% Time-stamp: <2019-05-07 10:55:44 stefan>
 %%
 \documentclass[swedish,10pt,a4paper]{article}
 
@@ -70,17 +70,26 @@
 
 \maketitle
 
-%\includegraphics{network_diagram.tex}
+I arbetet har jag använt ett verktyg för systemadministration CFEngine
+som ett stöd för korrekt inställning av isc:s DHCP:kontrollant
+och deras DNS tjänst.
+Dessutom används verktyget för att aktivera uppgraderingar av programvaran
+förutom för pc01/pc02 på de virtuella maskinerna ns01,webserver01 och dhcp01.
+Därav de extra två maskinerna cfengine och vcs \ref{network_organization} i ``server network''.
+VCS:maskinen är värd för git som används av cfengine för att sina data.
+Samma git:installation används även i rapportskrivningen.
+
+% \includegraphics{network_diagram.tex}
 %\includegraphics[height=200pt]{network_diagram_1.pdf}
 %\includegraphics[width=\baselinewidth]{home_stefan_Skrivbord_IT119G_IT119G_labbrapport_network_diagram-job_176.pdf}
 \begin{figure}
   \centering
-  \caption{Nätverkets organisation}
+  \caption{Labbnätverkets organisation}
+  \label{network_organization}
   \fbox{\includegraphics[width=\textwidth, clip, viewport=0 450 600 850 ]{network_diagram_export.pdf}}
 \end{figure}
 
 \section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
-
 
 Vilket protokoll används i ett nätverk där datorer vill översätta IPv4:s logiska adresser till något
 som hårdvaran kan hantera? ARP = address resolution protocol.
@@ -98,7 +107,6 @@ direkt anslutna till en för den reserverad anslutning i en sk.\ växel, anser j
 % En växel är speciellt konstruerad för att vidarebefordra trafik från flera datorer antingen
 % till dator som är ansluten i samma växel eller vidare via andra liknanden enheter till
 % avsedd mottagare.
-
 
 \subsection{översättning av IP-adress till de motsvarande MAC:adresserna}\label{trans_ip_mac}
 
@@ -183,8 +191,6 @@ den klient som vill ha en ny adress (``DHCP Request''). Dhcp:kontrollanten svara
 egen IPv4:adress till klientens MAC-adress med klientens korrekta IPv4:adress och andra optioner som exempelvis
 korrekt DNS:maskin och DNS:domännamn i samma paket.
 
-
-
 \subsection{loggar}
 
 ``/var/lib/dhcp/dhcpd.leases'' innehåller uppgifter om vilka klienter som har fått
@@ -193,7 +199,7 @@ har en statiskt tilldelad adress så är det fullt normalt - dpcpd.leases har in
 uppgifter om maskiner vars adresser är statiskt tilldelade
 som exempelvis för pc01:
 
-\definecolor{light-gray}{gray}{0.95}
+%% \definecolor{light-gray}{gray}{0.95}
 
 % \lstset{basicstyle=\footnotesize,
 % captionpos=b,
@@ -458,7 +464,6 @@ till 53683.
 
 \section{Uppgifter --- statisk IP:adressering}\label{sec:statisk_ip_adressering}
 
-
 \begin{table}
   \centering
   \caption{maskinnamn, MAC-adresser och leverantör}
@@ -486,17 +491,25 @@ ett avbrott i förbindelsen som medför att det hos mottagaren saknas data.
 Data som leveraras till mottagande program får ävenså inte vara förvanskat och alla data ska överlämnas
 i samma ordning som när det överlämnades av avsändande program till sin maskins TCP:modul.
 
-TCP:modul ska ses som den del av operativsystem eller det användareprogram som implementerar TCP (och 
+TCP:modul ska ses som den del av operativsystem eller det användareprogram som implementerar TCP (och
 underliggande moduler exv IP och ARP.) DECnet är ett exempel där användaren har installerat ett
 separat program för att implementera TCP ovanför en otillförlitlig transport via IP, DECnet eller X25.
 
+Tre-stegs handskakning
+\begin{verbatim}
+--
+SYN
+SYN+ACK
+ACK
+--
+\end{verbatim}
+
 \appendix
 
-\section{DNS}\label{sec:appendix_bind_config}
-
 I systemet modifierade filer inklusive DNS zoner.
-
 Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
+
+\section{DNS}\label{sec:appendix_bind_config}
 
 \begin{lstlisting}[caption={/etc/bind/named.conf}]
   //
@@ -505,6 +518,7 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
   // cfe-regler från 192.168.2.24
   // senast uppdatering av policy:
   //
+
   include "/etc/bind/named.conf.options";
   include "/etc/bind/named.conf.local";
 \end{lstlisting}
@@ -543,7 +557,7 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
     dnssec-validation auto;
 
     forwarders {
-      10.0.252.201; // använder labbets DNS:maskiner för 
+      10.0.252.201; // använder labbets DNS:maskiner för
       10.0.252.202; // externa frågor
     };
 
@@ -562,9 +576,9 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
   TTL 2000
   @ IN SOA ns01.b18steni.it119g.nsa.his.se. stefan.b18steni.it119g.nsa.his.se.
                (2019050218
-                14400 
-                3600 
-                1209600 
+                14400
+                3600
+                1209600
                 600)
 \end{lstlisting}
 
