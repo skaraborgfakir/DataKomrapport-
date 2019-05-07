@@ -1,5 +1,5 @@
 %%
-%% Time-stamp: <2019-05-06 13:58:03 nsa>
+%% Time-stamp: <2019-05-07 10:56:01 stefan>
 %%
 
 \documentclass[swedish,10pt,a4paper]{article}
@@ -483,7 +483,19 @@ till 53683.
 \end{table}
 
 
-\section{TCP-anslutningars faser}\label{sec:tcp_phases}
+\section{TCP-anslutningsfaser för en HTTP:överföring }\label{sec:tcp_phases_http}
+
+TCP definieras som en strömbaserad tillförlitlig förbindelse där strömbaserad ska ses som
+att förbindelsen ses som ett flöde utan några för applikationen direkt synliga gränser.
+
+TCP är tillförlig i betydelsen att avsändare och mottagare ska meddelas om rapport det blir
+ett avbrott i förbindelsen som medför att det hos mottagaren saknas data.
+Data som leveraras till mottagande program får ävenså inte vara förvanskat och alla data ska överlämnas
+i samma ordning som när det överlämnades av avsändande program till sin maskins TCP:modul.
+
+TCP:modul ska ses som den del av operativsystem eller det användareprogram som implementerar TCP (och
+underliggande moduler exv IP och ARP.) DECnet är ett exempel där användaren har installerat ett
+separat program för att implementera TCP ovanför en otillförlitlig transport via IP, DECnet eller X25.
 
 Tre-stegs handskakning
 \begin{verbatim}
@@ -497,10 +509,21 @@ ACK
 \appendix
 
 I systemet modifierade filer inklusive DNS zoner.
+Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
 
 \section{DNS}\label{sec:appendix_bind_config}
 
-Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
+\begin{lstlisting}[caption={/etc/bind/named.conf}]
+  //
+  // avsedd för ns01.b18steni.it119g.nsa.his.se
+  //
+  // cfe-regler från 192.168.2.24
+  // senast uppdatering av policy:
+  //
+
+  include "/etc/bind/named.conf.options";
+  include "/etc/bind/named.conf.local";
+\end{lstlisting}
 
 \begin{lstlisting}[caption={/etc/bind/named.conf.local}]
   //
