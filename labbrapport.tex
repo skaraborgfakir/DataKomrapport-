@@ -1,5 +1,5 @@
 %%
-%% Time-stamp: <2019-05-08 01:01:17 stefan>
+%% Time-stamp: <2019-05-15 15:09:50 stefan>
 %%
 
 \documentclass[swedish,10pt,a4paper]{article}
@@ -609,9 +609,30 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
 
 \section{DNS zoner}\label{sec:appendix_dns_zones}
 
-\texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
-\texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
-och \texttt{1.168.192.in-addr.arpa}.
+\begin{lstlisting}[language=sh,caption={/etc/bind/zones/db.b18steni.it119g.nsa.his.se}]
+  # root-domain
+  TTL 2000
+  @ IN SOA ns01.b18steni.it119g.nsa.his.se. stefan.b18steni.it119g.nsa.his.se.
+               (2019050218
+                14400
+                3600
+                1209600
+                600)
+\end{lstlisting}
+
+\begin{lstlisting}[language=sh,caption={/etc/bind/zones/db.1.168.192.in-addr.arpa}]
+  # reverse mapp ip-adresserna 192.168.1.x -> maskin-namn
+  $TTL 2000
+\end{lstlisting}
+
+\begin{lstlisting}[caption={/etc/bind/zones/db.2.168.192.in-addr.arpa}]
+  # reverse mapp ip-adresserna 192.168.2.x -> maskin-namn
+  $TTL 2000
+\end{lstlisting}
+
+% \texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
+% \texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
+% och \texttt{1.168.192.in-addr.arpa}.
 
 \section{isc dhcp}\label{sec:appendix_isc_dhcpd_config}
 
