@@ -1,33 +1,39 @@
 %%
-%% Time-stamp: <2019-05-16 00:23:42 stefan>
+%% Time-stamp: <2019-05-16 00:28:46 stefan>
 %%
+
 \documentclass[swedish,10pt,a4paper]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
-%% \renewcommand{\baselinestretch}{1.5}
-%% \linespread{1.5}
-
 % smallare marginal för anteckningar
-% \usepackage[marginparwidth=30pt]{geometry}
+%% \usepackage[marginparwidth=30pt]{geometry}
 
 %%
 %% använd Times istället för Computer Modern
 \usepackage{mathptmx}
 %% \usepackage{mathpazo}
 
-\usepackage{csquotes}       %% babel är för svenska beroende av csquotes
 \usepackage[swedish]{babel} %% babel
+\usepackage{csquotes}       %% csquotes är för svenska beroende av babel
 
 \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
 
-\usepackage{verbatim} %% verbatim miljö
+\usepackage{verbatim}         %% verbatim miljö
 
-% \usepackage{footnote}
+\usepackage{booktabs}         %% bottomrule/toprule !
+\usepackage{xcolor}           %% \definecolor, den gråa bakgrunden i kodlistningarna
+\definecolor{light-gray}{gray}{0.95}
+%% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
+\usepackage{hyperref}         %% hyperlänkar mellan text och bibliografin
+
+%% \usepackage{footnote}
 
 \usepackage{color}
-\usepackage[table]{xcolor} %% \definecolor, den gråa bakgrunden i kodlistningarna
+
+%% \usepackage{tabularx}               %% mer användbara tabeller
+\usepackage{tabu}                      %% mer användbara tabeller
 
 \usepackage{listings} %% programkodslistningar
 \lstset{basicstyle=\footnotesize,
@@ -40,14 +46,11 @@
 }
 
 \usepackage{colortbl}
-%% \usepackage{tabularx}                  %% mer användbara tabeller
-\usepackage{tabu}                      %% mer användbara tabeller
-%% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
-\usepackage{booktabs}                  %% bottomrule/toprule för tabellerna
+
+%\usepackage[fleqn]{mathtools}
 
 %% PDF-inkludering
 \usepackage{graphicx}
-
 \usepackage{pst-pdf}
 
 % \usepackage[fleqn]{mathtools}
@@ -57,7 +60,7 @@
 % \pgfmathresult_2% format output to make it clear it is base 2
 % }%
 
-\usepackage{hyperref} %% hyperlänkar mellan text och bibliografin
+%% \usepackage[style=alphabetic,backend=biber]{biblatex}
 \usepackage[style=authoryear,backend=biber]{biblatex} %%
 \addbibresource[location=local]{bib.bib}
 \addbibresource[location=local]{rfc.bib}
@@ -142,7 +145,6 @@ direkt anslutna till en för den reserverad anslutning i en sk.\ växel, anser j
 % En växel är speciellt konstruerad för att vidarebefordra trafik från flera datorer antingen
 % till dator som är ansluten i samma växel eller vidare via andra liknanden enheter till
 % avsedd mottagare.
-
 
 \subsection{översättning av IP-adress till de motsvarande MAC:adresserna}\label{trans_ip_mac}
 
