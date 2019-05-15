@@ -1,5 +1,5 @@
 %%
-%% Time-stamp: <2019-05-01 17:59:18 stefan>
+%% Time-stamp: <2019-05-16 00:19:31 stefan>
 %%
 \documentclass[swedish,10pt,a4paper]{article}
 
@@ -35,7 +35,8 @@
   backgroundcolor=\color{light-gray},
   extendedchars=true,
   breaklines=true,
-  literate={ö}{{\"o}}1 {å}{{\aa}}1 {Å}{{\aA}}l {ä}{{\"a}}1 {Ö}{{\"O}}1 {Ä}{{\"A}}1
+  literate={ö}{{\"o}}1 {å}{{\aa}}1 {Å}{{\aA}}l {ä}{{\"a}}1 {Ö}{{\"O}}1 {Ä}{{\"A}}1,
+  language=Java
 }
 
 \usepackage{colortbl}
@@ -69,17 +70,61 @@
 
 \maketitle
 
-%\includegraphics{network_diagram.tex}
+I arbetet har jag använt ett verktyg för systemadministration CFEngine
+som ett stöd för korrekt inställning av isc:s DHCP:kontrollant
+och deras DNS tjänst.
+Dessutom används verktyget för att aktivera uppgraderingar av programvaran
+förutom för pc01/pc02 på de virtuella maskinerna ns01,webserver01 och dhcp01.
+Därav de extra två maskinerna cfengine och vcs \ref{network_organization} i ``server network''.
+VCS:maskinen är värd för git som används av cfengine för att sina data.
+Samma git:installation används även i rapportskrivningen.
+
+% \includegraphics{network_diagram.tex}
 %\includegraphics[height=200pt]{network_diagram_1.pdf}
 %\includegraphics[width=\baselinewidth]{home_stefan_Skrivbord_IT119G_IT119G_labbrapport_network_diagram-job_176.pdf}
 \begin{figure}
   \centering
-  \caption{Nätverkets organisation}
+  \caption{Labbnätverkets organisation}
+  \label{network_organization}
   \fbox{\includegraphics[width=\textwidth, clip, viewport=0 450 600 850 ]{network_diagram_export.pdf}}
 \end{figure}
 
-\section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
+\section{Adressering i OSI:s länk-lager}\label{sec:adressering_i_osis_data_link_layer}
 
+Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite[kapitel 1]{Spurgeon2000}
+som ett svar på ett problem : nämligen hur XEROX nya uppfinning laserskrivaren
+skulle kunna anslutas till den nya typen av datorer från XEROX där författare, tekniker,
+ingenjörer och programmerare har kunnat fått sin egen maskin, XEROX ALTO.
+
+Alto räknas som den första arbetsstationen i betydelsen en enanvändaredator med ett grafiskt
+användaregränssnitt, en stor katodstråleskärm, ett roternade skivminne
+och Doug Engelbarts pekdon, en mus.
+
+Robert Metcalfe anställdes vid PARC 1972 bland annat på grund av sina erfarenheter av ARPANET
+med avsikten att han skulle forska inom XEROX kontorsautomatiseringsprojekt.
+Metcalfes Ethernet patenterades 1974 med avsikten att det skulle vara en viktig
+komponent i XEROX produkter för kontoret.
+
+Metcalfe blev 1977--1978 frustrerad av XEROX oförmåga att bygga och sälja produkter som
+med den nya tekniken och att XEROX:s inställning till den var proprietär, ingen
+annan skulle få använda den i sin produkt.
+
+Metcalfe lämnade i slutet av 1978 XEROX med avsikten att i samarbete med andra
+företag övertala XEROX att acceptera att Ethernet skulle standardiseras
+och därmed bli tillgängligt som tillbehör till andra datorer än de från
+XEROX. Intel, Digital Equipment och XEROX bildade DIX:konsortiet som
+standardiserade Ethernet som IEEE 802.3 10base5.
+
+\blockquote[\cite{Robert Metcalfe}]{I came to work one day at MIT and the computer had
+  been stolen so I called DEC to break the news to them that this \$30,000
+  computer that they'd lent me was gone. They thought this was the greatest thing that ever
+  happened because it turns out I had in my possession the first computer small enough to be stolen!}
+
+Digital Equipment hade målsättningen att till skillnad mot den äldre IMP:lösningen
+kunna integrera anslutningen mot andra datornät inuti sina egna maskiner.
+andra ndatornätsanslutningen inuti deras datorer.
+
+\section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
 
 Vilket protokoll används i ett nätverk där datorer vill översätta IPv4:s logiska adresser till något
 som hårdvaran kan hantera? ARP = address resolution protocol.
@@ -192,7 +237,7 @@ har en statiskt tilldelad adress så är det fullt normalt - dpcpd.leases har in
 uppgifter om maskiner vars adresser är statiskt tilldelade
 som exempelvis för pc01:
 
-\definecolor{light-gray}{gray}{0.95}
+%% \definecolor{light-gray}{gray}{0.95}
 
 % \lstset{basicstyle=\footnotesize,
 % captionpos=b,
@@ -475,16 +520,47 @@ till 53683.
 \end{table}
 
 
-\section{TCP-anslutningars faser}\label{sec:tcp_phases}
+\section{TCP-anslutningsfaser för en HTTP:överföring }\label{sec:tcp_phases_http}
 
+TCP definieras som en strömbaserad tillförlitlig förbindelse där strömbaserad ska ses som
+att förbindelsen ses som ett flöde utan några för applikationen direkt synliga gränser.
+
+TCP är tillförlig i betydelsen att avsändare och mottagare ska meddelas om rapport det blir
+ett avbrott i förbindelsen som medför att det hos mottagaren saknas data.
+Data som leveraras till mottagande program får ävenså inte vara förvanskat och alla data ska överlämnas
+i samma ordning som när det överlämnades av avsändande program till sin maskins TCP:modul.
+
+TCP:modul ska ses som den del av operativsystem eller det användareprogram som implementerar TCP (och
+underliggande moduler exv IP och ARP.) DECnet är ett exempel där användaren har installerat ett
+separat program för att implementera TCP ovanför en otillförlitlig transport via IP, DECnet eller X25.
+
+Tre-stegs handskakning
+\begin{verbatim}
+--
+SYN
+SYN+ACK
+ACK
+--
+\end{verbatim}
 
 \appendix
 
 I systemet modifierade filer inklusive DNS zoner.
+Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
 
 \section{DNS}\label{sec:appendix_bind_config}
 
-Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
+\begin{lstlisting}[caption={/etc/bind/named.conf}]
+  //
+  // avsedd för ns01.b18steni.it119g.nsa.his.se
+  //
+  // cfe-regler från 192.168.2.24
+  // senast uppdatering av policy:
+  //
+
+  include "/etc/bind/named.conf.options";
+  include "/etc/bind/named.conf.local";
+\end{lstlisting}
 
 \begin{lstlisting}[caption={/etc/bind/named.conf.local}]
   //
@@ -520,23 +596,137 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
     dnssec-validation auto;
 
     forwarders {
-      10.0.252.201;
-      10.0.252.202;
+      10.0.252.201; // använder labbets DNS:maskiner för
+      10.0.252.202; // externa frågor
     };
 
     listen-on-v6 { any; };
     auth-nxdomain no;    \# conform to RFC1035
 
-    allow-recursion { my_computers; };
-    allow-query { any; };
+    allow-recursion { my_computers; }; // neka att jobba åt andra
+    allow-query { any; };              // men andra kan ställa frågor
   };
 \end{lstlisting}
 
 \section{DNS zoner}\label{sec:appendix_dns_zones}
 
-\texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
-\texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
-och \texttt{1.168.192.in-addr.arpa}.
+\begin{lstlisting}[language=sh,caption={/etc/bind/zones/db.b18steni.it119g.nsa.his.se}]
+  # root-domain
+  TTL 2000
+  @ IN SOA ns01.b18steni.it119g.nsa.his.se. stefan.b18steni.it119g.nsa.his.se.
+               (2019050218
+                14400
+                3600
+                1209600
+                600)
+\end{lstlisting}
+
+\begin{lstlisting}[language=sh,caption={/etc/bind/zones/db.1.168.192.in-addr.arpa}]
+  # reverse mapp ip-adresserna 192.168.1.x -> maskin-namn
+  $TTL 2000
+\end{lstlisting}
+
+\begin{lstlisting}[caption={/etc/bind/zones/db.2.168.192.in-addr.arpa}]
+  # reverse mapp ip-adresserna 192.168.2.x -> maskin-namn
+  $TTL 2000
+\end{lstlisting}
+
+% \texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
+% \texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
+% och \texttt{1.168.192.in-addr.arpa}.
+
+\section{isc dhcp}\label{sec:appendix_isc_dhcpd_config}
+
+\begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (pool-baserad allokering av adresser)]
+#
+# avsedd för dhcp01.b18steni.it119g.nsa.his.se
+#
+# def.json tidsstämpel: Time-stamp: <2019-05-06 12:09:15 nsa>
+# host.json tidsstämpel: Time-stamp: <2019-03-29 13:17:21 nsa>
+# senast uppdatering av policy: Mon May  6 12:13:17 2019
+#
+# cfe-regler från 192.168.2.24
+#
+
+ddns-update-style none;
+
+option routers 192.168.1.1;
+option domain-name "b18steni.it119g.nsa.his.se";
+option domain-name-servers 192.168.2.22;
+
+option ntp-servers 194.58.203.20;
+default-lease-time 600;
+max-lease-time 7200;
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+authoritative;
+
+# Use this to send dhcp log messages to a different log file (you also
+# have to hack syslog.conf to complete the redirection).
+log-facility local7;
+
+
+#
+# utan static_dhcp_mapping
+#
+subnet 192.168.1.0 netmask 255.255.255.0 {
+  range 192.168.1.10 192.168.1.20;
+  option routers 192.168.1.1;
+}
+\end{lstlisting}
+\newpage
+\begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (statisk allokering av adresser)]
+#
+# avsedd för dhcp01.b18steni.it119g.nsa.his.se
+#
+# def.json tidsstämpel: Time-stamp: <2019-05-06 12:09:15 nsa>
+# host.json tidsstämpel: Time-stamp: <2019-03-29 13:17:21 nsa>
+# senast uppdatering av policy: Mon May  6 12:13:17 2019
+#
+# cfe-regler från 192.168.2.24
+#
+
+ddns-update-style none;
+
+option routers 192.168.1.1;
+option domain-name "b18steni.it119g.nsa.his.se";
+option domain-name-servers 192.168.2.22;
+
+option ntp-servers 194.58.203.20;
+default-lease-time 600;
+max-lease-time 7200;
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+authoritative;
+
+# Use this to send dhcp log messages to a different log file (you also
+# have to hack syslog.conf to complete the redirection).
+log-facility local7;
+
+
+#
+# utan static_dhcp_mapping
+#
+subnet 192.168.1.0 netmask 255.255.255.0 {
+  range 192.168.1.10 192.168.1.20;
+  option routers 192.168.1.1;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={/var/lib/dhcp/dhcpd.leases}]
+lease 192.168.1.11 {
+  starts 5 2019/03/29 11:25:55;
+  ends 5 2019/03/29 11:35:55;
+  cltt 5 2019/03/29 11:25:55;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:56:36:16:67;
+  client-hostname "pc01";
+}
+\end{lstlisting}
 
 \printbibliography{}
 \end{document}
