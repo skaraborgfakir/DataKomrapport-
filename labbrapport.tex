@@ -1,5 +1,5 @@
 %%
-%% Time-stamp: <2019-05-07 23:14:43 nsa>
+%% Time-stamp: <2019-05-08 01:01:17 stefan>
 %%
 
 \documentclass[swedish,10pt,a4paper]{article}
@@ -16,7 +16,7 @@
 %% \usepackage{mathpazo}
 
 \usepackage[swedish]{babel} %% babel
-\usepackage{csquotes}       %% babel är för svenska beroende av csquotes
+\usepackage{csquotes}       %% csquotes är för svenska beroende av babel
 
 \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
 
@@ -95,7 +95,7 @@ Samma git:installation används även i rapportskrivningen.
 
 Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite[kapitel 1]{Spurgeon2000}
 som ett svar på ett problem : nämligen hur XEROX nya uppfinning laserskrivaren
-skulle kunna anslutas till den nya typen av datorer från XEROX där författare, tekniker, 
+skulle kunna anslutas till den nya typen av datorer från XEROX där författare, tekniker,
 ingenjörer och programmerare har kunnat fått sin egen maskin, XEROX ALTO.
 
 Alto räknas som den första arbetsstationen i betydelsen en enanvändaredator med ett grafiskt
@@ -117,7 +117,15 @@ och därmed bli tillgängligt som tillbehör till andra datorer än de från
 XEROX. Intel, Digital Equipment och XEROX bildade DIX:konsortiet som
 standardiserade Ethernet som IEEE 802.3 10base5.
 
-Digital Equipment  
+\blockquote[\cite{Robert Metcalfe}]{I came to work one day at MIT and the computer had
+  been stolen so I called DEC to break the news to them that this \$30,000
+  computer that they'd lent me was gone. They thought this was the greatest thing that ever
+  happened because it turns out I had in my possession the first computer small enough to be stolen!}
+
+Digital Equipment hade målsättningen att till skillnad mot den äldre IMP:lösningen
+kunna integrera anslutningen mot andra datornät inuti sina egna maskiner.
+andra ndatornätsanslutningen inuti deras datorer.
+
 
 \section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
 
