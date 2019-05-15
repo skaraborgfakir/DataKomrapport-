@@ -1,16 +1,14 @@
 %%
-%% Time-stamp: <2019-05-07 10:55:44 stefan>
+%% Time-stamp: <2019-05-15 15:11:05 stefan>
 %%
+
 \documentclass[swedish,10pt,a4paper]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
-%% \renewcommand{\baselinestretch}{1.5}
-%% \linespread{1.5}
-
 % smallare marginal för anteckningar
-% \usepackage[marginparwidth=30pt]{geometry}
+%% \usepackage[marginparwidth=30pt]{geometry}
 
 %%
 %% använd Times istället för Computer Modern
@@ -22,12 +20,20 @@
 
 \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
 
-\usepackage{verbatim} %% verbatim miljö
+\usepackage{verbatim}         %% verbatim miljö
 
-% \usepackage{footnote}
+\usepackage{booktabs}         %% bottomrule/toprule !
+\usepackage{xcolor}           %% \definecolor, den gråa bakgrunden i kodlistningarna
+\definecolor{light-gray}{gray}{0.95}
+%% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
+\usepackage{hyperref}         %% hyperlänkar mellan text och bibliografin
+
+%% \usepackage{footnote}
 
 \usepackage{color}
-\usepackage[table]{xcolor} %% \definecolor, den gråa bakgrunden i kodlistningarna
+
+%% \usepackage{tabularx}               %% mer användbara tabeller
+\usepackage{tabu}                      %% mer användbara tabeller
 
 \usepackage{listings} %% programkodslistningar
 \lstset{basicstyle=\footnotesize,
@@ -40,14 +46,11 @@
 }
 
 \usepackage{colortbl}
-%% \usepackage{tabularx}                  %% mer användbara tabeller
-\usepackage{tabu}                      %% mer användbara tabeller
-%% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
-\usepackage{booktabs}                  %% bottomrule/toprule för tabellerna
+
+%\usepackage[fleqn]{mathtools}
 
 %% PDF-inkludering
 \usepackage{graphicx}
-
 \usepackage{pst-pdf}
 
 % \usepackage[fleqn]{mathtools}
@@ -57,7 +60,7 @@
 % \pgfmathresult_2% format output to make it clear it is base 2
 % }%
 
-\usepackage{hyperref} %% hyperlänkar mellan text och bibliografin
+%% \usepackage[style=alphabetic,backend=biber]{biblatex}
 \usepackage[style=authoryear,backend=biber]{biblatex} %%
 \addbibresource[location=local]{bib.bib}
 \addbibresource[location=local]{rfc.bib}
@@ -88,6 +91,41 @@ Samma git:installation används även i rapportskrivningen.
   \label{network_organization}
   \fbox{\includegraphics[width=\textwidth, clip, viewport=0 450 600 850 ]{network_diagram_export.pdf}}
 \end{figure}
+
+\section{Adressering i OSI:s länk-lager}\label{sec:adressering_i_osis_data_link_layer}
+
+Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite[kapitel 1]{Spurgeon2000}
+som ett svar på ett problem : nämligen hur XEROX nya uppfinning laserskrivaren
+skulle kunna anslutas till den nya typen av datorer från XEROX där författare, tekniker,
+ingenjörer och programmerare har kunnat fått sin egen maskin, XEROX ALTO.
+
+Alto räknas som den första arbetsstationen i betydelsen en enanvändaredator med ett grafiskt
+användaregränssnitt, en stor katodstråleskärm, ett roternade skivminne
+och Doug Engelbarts pekdon, en mus.
+
+Robert Metcalfe anställdes vid PARC 1972 bland annat på grund av sina erfarenheter av ARPANET
+med avsikten att han skulle forska inom XEROX kontorsautomatiseringsprojekt.
+Metcalfes Ethernet patenterades 1974 med avsikten att det skulle vara en viktig
+komponent i XEROX produkter för kontoret.
+
+Metcalfe blev 1977--1978 frustrerad av XEROX oförmåga att bygga och sälja produkter som
+med den nya tekniken och att XEROX:s inställning till den var proprietär, ingen
+annan skulle få använda den i sin produkt.
+
+Metcalfe lämnade i slutet av 1978 XEROX med avsikten att i samarbete med andra
+företag övertala XEROX att acceptera att Ethernet skulle standardiseras
+och därmed bli tillgängligt som tillbehör till andra datorer än de från
+XEROX. Intel, Digital Equipment och XEROX bildade DIX:konsortiet som
+standardiserade Ethernet som IEEE 802.3 10base5.
+
+\blockquote[\cite{Robert Metcalfe}]{I came to work one day at MIT and the computer had
+  been stolen so I called DEC to break the news to them that this \$30,000
+  computer that they'd lent me was gone. They thought this was the greatest thing that ever
+  happened because it turns out I had in my possession the first computer small enough to be stolen!}
+
+Digital Equipment hade målsättningen att till skillnad mot den äldre IMP:lösningen
+kunna integrera anslutningen mot andra datornät inuti sina egna maskiner.
+andra ndatornätsanslutningen inuti deras datorer.
 
 \section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
 
@@ -550,7 +588,7 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
   // senast uppdatering av policy:
   //
 
-  acl my_computers {192.168.0.0/16;10.204.12.0/24;10.204.20.0/24;};
+  acl my_computers { 192.168.0.0/16; 10.204.12.0/24; 10.204.20.0/24; };
 
   options {
     directory "/var/cache/bind";
@@ -595,6 +633,99 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
 % \texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
 % \texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
 % och \texttt{1.168.192.in-addr.arpa}.
+
+\section{isc dhcp}\label{sec:appendix_isc_dhcpd_config}
+
+\begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (pool-baserad allokering av adresser)]
+#
+# avsedd för dhcp01.b18steni.it119g.nsa.his.se
+#
+# def.json tidsstämpel: Time-stamp: <2019-05-06 12:09:15 nsa>
+# host.json tidsstämpel: Time-stamp: <2019-03-29 13:17:21 nsa>
+# senast uppdatering av policy: Mon May  6 12:13:17 2019
+#
+# cfe-regler från 192.168.2.24
+#
+
+ddns-update-style none;
+
+option routers 192.168.1.1;
+option domain-name "b18steni.it119g.nsa.his.se";
+option domain-name-servers 192.168.2.22;
+
+option ntp-servers 194.58.203.20;
+default-lease-time 600;
+max-lease-time 7200;
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+authoritative;
+
+# Use this to send dhcp log messages to a different log file (you also
+# have to hack syslog.conf to complete the redirection).
+log-facility local7;
+
+
+#
+# utan static_dhcp_mapping
+#
+subnet 192.168.1.0 netmask 255.255.255.0 {
+  range 192.168.1.10 192.168.1.20;
+  option routers 192.168.1.1;
+}
+\end{lstlisting}
+\newpage
+\begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (statisk allokering av adresser)]
+#
+# avsedd för dhcp01.b18steni.it119g.nsa.his.se
+#
+# def.json tidsstämpel: Time-stamp: <2019-05-06 12:09:15 nsa>
+# host.json tidsstämpel: Time-stamp: <2019-03-29 13:17:21 nsa>
+# senast uppdatering av policy: Mon May  6 12:13:17 2019
+#
+# cfe-regler från 192.168.2.24
+#
+
+ddns-update-style none;
+
+option routers 192.168.1.1;
+option domain-name "b18steni.it119g.nsa.his.se";
+option domain-name-servers 192.168.2.22;
+
+option ntp-servers 194.58.203.20;
+default-lease-time 600;
+max-lease-time 7200;
+
+# If this DHCP server is the official DHCP server for the local
+# network, the authoritative directive should be uncommented.
+authoritative;
+
+# Use this to send dhcp log messages to a different log file (you also
+# have to hack syslog.conf to complete the redirection).
+log-facility local7;
+
+
+#
+# utan static_dhcp_mapping
+#
+subnet 192.168.1.0 netmask 255.255.255.0 {
+  range 192.168.1.10 192.168.1.20;
+  option routers 192.168.1.1;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={/var/lib/dhcp/dhcpd.leases}]
+lease 192.168.1.11 {
+  starts 5 2019/03/29 11:25:55;
+  ends 5 2019/03/29 11:35:55;
+  cltt 5 2019/03/29 11:25:55;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:56:36:16:67;
+  client-hostname "pc01";
+}
+\end{lstlisting}
 
 \printbibliography{}
 \end{document}

@@ -1,0 +1,9 @@
+*.aux
+*.bbl
+*.bcf
+*.run.xml
+texput.log
+*.blg
+*.log
+*.out
+labbrapport.pdf
