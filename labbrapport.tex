@@ -1,5 +1,5 @@
 %%
-%% Time-stamp: <2019-05-15 15:09:50 stefan>
+%% Time-stamp: <2019-05-15 15:11:22 stefan>
 %%
 
 \documentclass[swedish,10pt,a4paper]{article}
@@ -125,7 +125,6 @@ standardiserade Ethernet som IEEE 802.3 10base5.
 Digital Equipment hade målsättningen att till skillnad mot den äldre IMP:lösningen
 kunna integrera anslutningen mot andra datornät inuti sina egna maskiner.
 andra ndatornätsanslutningen inuti deras datorer.
-
 
 \section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
 
@@ -595,8 +594,8 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
     dnssec-validation auto;
 
     forwarders {
-      10.0.252.201;
-      10.0.252.202;
+      10.0.252.201; // använder labbets DNS:maskiner för
+      10.0.252.202; // externa frågor
     };
 
     listen-on-v6 { any; };
