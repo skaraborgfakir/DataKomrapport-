@@ -1,57 +1,48 @@
 %%
-%% Time-stamp: <2019-05-16 00:28:46 stefan>
+%% Time-stamp: <2019-05-16 12:06:59 stefan>
 %%
 
 \documentclass[swedish,10pt,a4paper]{article}
 
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}     %% åäö som enskilda tecken i font
+\usepackage[utf8]{inputenc}  %% UTF8 i input
 
 % smallare marginal för anteckningar
 %% \usepackage[marginparwidth=30pt]{geometry}
 
-%%
-%% använd Times istället för Computer Modern
-\usepackage{mathptmx}
-%% \usepackage{mathpazo}
+%% \usepackage{mathptmx} %% använd Times istället för Computer Modern
+%% \usepackage{mathpazo} %% använd Palatino istället för Computer Modern
 
-\usepackage[swedish]{babel} %% babel
-\usepackage{csquotes}       %% csquotes är för svenska beroende av babel
+\usepackage{xcolor}                   %% \definecolor, den gråa bakgrunden i kodlistningarna
+\definecolor{kodbakgrund}{gray}{0.95}
 
-\usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
+\usepackage{babel}        %% babel : styckenamn på svenska osv
+%% \usepackage{csquotes}  %% csquotes är för svenska beroende av babel
 
-\usepackage{verbatim}         %% verbatim miljö
+%% \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
 
-\usepackage{booktabs}         %% bottomrule/toprule !
-\usepackage{xcolor}           %% \definecolor, den gråa bakgrunden i kodlistningarna
-\definecolor{light-gray}{gray}{0.95}
+%% \usepackage{verbatim}         %% verbatim miljö
+
+%% \usepackage{booktabs}         %% bottomrule/toprule !
 %% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
-\usepackage{hyperref}         %% hyperlänkar mellan text och bibliografin
+%% \usepackage{hyperref}         %% hyperlänkar mellan text och bibliografin
 
 %% \usepackage{footnote}
 
-\usepackage{color}
+%% \usepackage{color}
 
 %% \usepackage{tabularx}               %% mer användbara tabeller
-\usepackage{tabu}                      %% mer användbara tabeller
+%% \usepackage{tabu}                      %% mer användbara tabeller
 
-\usepackage{listings} %% programkodslistningar
-\lstset{basicstyle=\footnotesize,
-  captionpos=b,
-  backgroundcolor=\color{light-gray},
-  extendedchars=true,
-  breaklines=true,
-  literate={ö}{{\"o}}1 {å}{{\aa}}1 {Å}{{\aA}}l {ä}{{\"a}}1 {Ö}{{\"O}}1 {Ä}{{\"A}}1,
-  language=Java
-}
 
-\usepackage{colortbl}
-
-%\usepackage[fleqn]{mathtools}
+%% \usepackage{colortbl}
 
 %% PDF-inkludering
-\usepackage{graphicx}
-\usepackage{pst-pdf}
+%% \usepackage{graphicx}
+%% \usepackage{pst-pdf}
+
+% \usepackage[fleqn]{mathtools}
 
 % \usepackage[fleqn]{mathtools}
 % \usepackage{pgf}
@@ -59,6 +50,16 @@
 % {#1}_2 + {#2}_2 = \pgfmathbin{0b#1 + 0b#2}% compute binary addition
 % \pgfmathresult_2% format output to make it clear it is base 2
 % }%
+
+\usepackage{listings} %% programkodslistningar
+\lstset{basicstyle=\footnotesize,
+  captionpos=b,
+  backgroundcolor=\color{kodbakgrund},
+  extendedchars=true,
+  breaklines=true,
+  literate={ö}{{\"o}}1 {å}{{\aa}}1 {Å}{{\aA}}l {ä}{{\"a}}1 {Ö}{{\"O}}1 {Ä}{{\"A}}1,
+  language=Java
+}
 
 %% \usepackage[style=alphabetic,backend=biber]{biblatex}
 \usepackage[style=authoryear,backend=biber]{biblatex} %%
@@ -87,8 +88,7 @@ Samma git:installation används även i rapportskrivningen.
 %\includegraphics[width=\baselinewidth]{home_stefan_Skrivbord_IT119G_IT119G_labbrapport_network_diagram-job_176.pdf}
 \begin{figure}
   \centering
-  \caption{Labbnätverkets organisation}
-  \label{network_organization}
+  \caption{Labbnätverkets organisation}\label{network_organization}
   \fbox{\includegraphics[width=\textwidth, clip, viewport=0 450 600 850 ]{network_diagram_export.pdf}}
 \end{figure}
 
