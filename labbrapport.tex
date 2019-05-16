@@ -1,10 +1,10 @@
 %%
-%% Time-stamp: <2019-05-16 12:06:59 stefan>
+%% Time-stamp: <2019-05-16 15:18:29 stefan>
 %%
 
 \documentclass[swedish,10pt,a4paper]{article}
 
-\usepackage{lmodern}
+\usepackage{lmodern}         %% Latin Moderna istället för Computer Modern
 \usepackage[T1]{fontenc}     %% åäö som enskilda tecken i font
 \usepackage[utf8]{inputenc}  %% UTF8 i input
 
@@ -17,32 +17,25 @@
 \usepackage{xcolor}                   %% \definecolor, den gråa bakgrunden i kodlistningarna
 \definecolor{kodbakgrund}{gray}{0.95}
 
-\usepackage{babel}        %% babel : styckenamn på svenska osv
-%% \usepackage{csquotes}  %% csquotes är för svenska beroende av babel
+\usepackage[english,main=swedish]{babel} %% babel : styckenamn på svenska osv (english är med tanke på korrekt funktion i citeringar)
+\usepackage[autostyle=true]{csquotes}    %% csquotes är för svenska beroende av babel
 
 %% \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
-
 %% \usepackage{verbatim}         %% verbatim miljö
-
 %% \usepackage{booktabs}         %% bottomrule/toprule !
 %% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
-%% \usepackage{hyperref}         %% hyperlänkar mellan text och bibliografin
-
 %% \usepackage{footnote}
-
 %% \usepackage{color}
-
 %% \usepackage{tabularx}               %% mer användbara tabeller
-%% \usepackage{tabu}                      %% mer användbara tabeller
-
-
 %% \usepackage{colortbl}
 
-%% PDF-inkludering
-%% \usepackage{graphicx}
-%% \usepackage{pst-pdf}
+%% tabeller
+\usepackage{tabu}                      %% mer användbara tabeller
+\newcolumntype{s}{>{\columncolor[gray]{0.95}} p{4cm}} %% ny kolumntyp för tabeller
 
-% \usepackage[fleqn]{mathtools}
+%% PDF-inkludering
+\usepackage{graphicx}
+%% \usepackage{pst-pdf}
 
 % \usepackage[fleqn]{mathtools}
 % \usepackage{pgf}
@@ -61,8 +54,9 @@
   language=Java
 }
 
-%% \usepackage[style=alphabetic,backend=biber]{biblatex}
-\usepackage[style=authoryear,backend=biber]{biblatex} %%
+\usepackage{hyperref}                                   %% hyperlänkar mellan text och bibliografin
+%% \usepackage[style=alphabetic,backend=biber]{biblatex}    %% biblatex behöver csquotes om babel ska användas
+\usepackage[style=authoryear,backend=biber]{biblatex}   %% biblatex behöver csquotes om babel ska användas
 \addbibresource[location=local]{bib.bib}
 \addbibresource[location=local]{rfc.bib}
 \addbibresource[location=local]{rfc_draft.bib}
@@ -74,38 +68,30 @@
 
 \maketitle
 
-I arbetet har jag använt ett verktyg för systemadministration CFEngine
-som ett stöd för korrekt inställning av isc:s DHCP:kontrollant
-och deras DNS tjänst.
-Dessutom används verktyget för att aktivera uppgraderingar av programvaran
-förutom för pc01/pc02 på de virtuella maskinerna ns01,webserver01 och dhcp01.
-Därav de extra två maskinerna cfengine och vcs \ref{network_organization} i ``server network''.
-VCS:maskinen är värd för git som används av cfengine för att sina data.
-Samma git:installation används även i rapportskrivningen.
+\section{IEEE 802.3}\label{IEEE_802.3}
 
-% \includegraphics{network_diagram.tex}
-%\includegraphics[height=200pt]{network_diagram_1.pdf}
-%\includegraphics[width=\baselinewidth]{home_stefan_Skrivbord_IT119G_IT119G_labbrapport_network_diagram-job_176.pdf}
-\begin{figure}
-  \centering
-  \caption{Labbnätverkets organisation}\label{network_organization}
-  \fbox{\includegraphics[width=\textwidth, clip, viewport=0 450 600 850 ]{network_diagram_export.pdf}}
-\end{figure}
+Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite[kapitel 6]{Pelkey}
+som ett svar på ett problem: nämligen hur den nya uppfinningen laserskrivaren
+skulle kunna användas från den nya typen av datorer från XEROX som författare, tekniker,
+ingenjörer och programmerare skulle kunna ha ett eget exemplar av.  Detta som skillnad
+mot samtida stor-datorer och mini-datorer som antingen finansiellt sett var för dyra
+eller för komplicerade för att kontorsarbetare skulle kunna ha sitt eget exemplar.
 
-\section{Adressering i OSI:s länk-lager}\label{sec:adressering_i_osis_data_link_layer}
+Dock, IBM PC, Apple II och Xerox Alto var inte de första maskinerna med tillräckligt
+låga kostnader för att en ingenjör skulle kunna ha obegränsad tillgång till dem,
+Bendix G-15\footcite{BendixG15brochure}, LINC (Laboratory INstrument Computer)\footcite{LINCLightsout}
+och olika modeller av DEC PDP-8 räknas som de maskiner som var först att ha ett rätt pris och vara enkel nog
+att använda att exempelvis en ingenjör som i sitt arbete har optimiseringsproblem att beräkna
+kunde få en maskin reserverad för sitt eget bruk.
 
-Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite[kapitel 1]{Spurgeon2000}
-som ett svar på ett problem : nämligen hur XEROX nya uppfinning laserskrivaren
-skulle kunna anslutas till den nya typen av datorer från XEROX där författare, tekniker,
-ingenjörer och programmerare har kunnat fått sin egen maskin, XEROX ALTO.
-
-Alto räknas som den första arbetsstationen i betydelsen en enanvändaredator med ett grafiskt
-användaregränssnitt, en stor katodstråleskärm, ett roternade skivminne
+Alto kan räknas som den första arbetsstationen i betydelsen en-användaredator med ett grafiskt
+användaregränssnitt, en stor katodstråleskärm, ett roterande skivminne
 och Doug Engelbarts pekdon, en mus.
 
 Robert Metcalfe anställdes vid PARC 1972 bland annat på grund av sina erfarenheter av ARPANET
 med avsikten att han skulle forska inom XEROX kontorsautomatiseringsprojekt.
-Metcalfes Ethernet patenterades 1974 med avsikten att det skulle vara en viktig
+
+Metcalfes Ethernet patenterades 1974\footcite[kapitel 6 sektion ]{Pelkey} med avsikten att det skulle vara en viktig
 komponent i XEROX produkter för kontoret.
 
 Metcalfe blev 1977--1978 frustrerad av XEROX oförmåga att bygga och sälja produkter som
@@ -118,7 +104,7 @@ och därmed bli tillgängligt som tillbehör till andra datorer än de från
 XEROX. Intel, Digital Equipment och XEROX bildade DIX:konsortiet som
 standardiserade Ethernet som IEEE 802.3 10base5.
 
-\blockquote[\cite{Robert Metcalfe}]{I came to work one day at MIT and the computer had
+\foreignblockquote{english}[Robert Metcalfe]{I came to work one day at MIT and the computer had
   been stolen so I called DEC to break the news to them that this \$30,000
   computer that they'd lent me was gone. They thought this was the greatest thing that ever
   happened because it turns out I had in my possession the first computer small enough to be stolen!}
@@ -126,6 +112,18 @@ standardiserade Ethernet som IEEE 802.3 10base5.
 Digital Equipment hade målsättningen att till skillnad mot den äldre IMP:lösningen
 kunna integrera anslutningen mot andra datornät inuti sina egna maskiner.
 andra ndatornätsanslutningen inuti deras datorer.
+
+
+% \includegraphics{network_diagram.tex}
+%\includegraphics[height=200pt]{network_diagram_1.pdf}
+%\includegraphics[width=\baselinewidth]{home_stefan_Skrivbord_IT119G_IT119G_labbrapport_network_diagram-job_176.pdf}
+\begin{figure}
+  \centering
+  \caption{Labbnätverkets organisation}\label{network_organization}
+  \fbox{\includegraphics[width=\textwidth, clip, viewport=0 450 600 850 ]{network_diagram_export.pdf}}
+\end{figure}
+
+\section{Adressering i OSI:s länk-lager}\label{sec:adressering_i_osis_data_link_layer}
 
 \section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
 
@@ -148,7 +146,6 @@ direkt anslutna till en för den reserverad anslutning i en sk.\ växel, anser j
 
 \subsection{översättning av IP-adress till de motsvarande MAC:adresserna}\label{trans_ip_mac}
 
-\newcolumntype{s}{>{\columncolor[gray]{0.95}} p{4cm}}
 
 \begin{table}
   \centering
@@ -541,6 +538,49 @@ SYN+ACK
 ACK
 --
 \end{verbatim}
+
+\section{CFEngine}\label{sec:cfengine}
+
+I arbetet har jag använt administrationsverktyget CFEngine Enterprise
+för systemadministration och git som ett sätt att versionssäkra
+CFEngine:s regeluppsättning.
+
+Regeluppsättningen är en uppsättning av åtagande som ska
+alltid ska hållas på för just det åtagandet aktuella system.
+
+Åtaganden som används är:
+\begin{itemize}
+\item \texttt{BIND}:s egen konfiguration
+\item Innehållet i \texttt{DNS}:zonerna
+\item \texttt{ISC-DHCP}:kontrollants konfiguration inklusive adressuppgifterna för \texttt{pc01} och \texttt{pc02}
+\item Att datakom:användaren är definierad med korrekt lösenord på \texttt{ns01}, \texttt{webserver01} och \texttt{dhcp01}
+\item Att \texttt{/var/www/html/mytextfile.txt} är tillgängligt via \texttt{http} från \texttt{webserver01}
+\item Att Ubuntu:s \texttt{open-vm-tools} är installerat och aktivt (\texttt{ns01}, \texttt{webserver01} och \texttt{dhcp01})
+\item Att CentOS:s \texttt{open-vm-tools} är installerat och aktivt (\texttt{cfengine} och \texttt{vcs})
+\end{itemize}
+
+En git:tjänst används som revisionskontrollerad källa för de åtagande i regelsamlingen som anslutna maskiner är
+förpliktade att infria och hålla.
+
+Ansvariga administratörer beskriver ett åtagande med ett regelbaserat språk i normala
+textfiler. Dessa filer med sina ändringar, registreras i det git:förråd som CFengine:s kontrollant
+(även detta räknas som ett åtagande från kontrollanten) förväntas distribuera regler från.
+
+Efter en förändring i git:förrådet hämtar kontrollanten hela den ändrade regeluppsättningen, provkör den (i huvudsak
+en kontroll av syntaxen) och om kontrollen blev godkänd kommer den nya
+regeluppsättningen att ersätta den som dess förinnan lämnades ut.
+
+Maskiner som är förpliktade att följa regelsamlingen begär med ett
+fast intervall ut aktuell version av reglerna från kontrollanten.
+
+% Hämtande maskiner kontrollerar att kontrollanten alltid har samma identitet liksom
+% att kontrollanten kontrollerar att hämtande maskiner har samma identitet.
+
+% Dessutom används verktyget för att aktivera uppgraderingar av programvaran
+% förutom för pc01/pc02 på de virtuella maskinerna ns01,webserver01 och dhcp01.
+% Därav de extra två maskinerna cfengine och vcs \ref{network_organization} i ``server network''.
+% VCS:maskinen är värd för git som används av cfengine för att sina data.
+% Samma git:installation används även i rapportskrivningen.
 
 \appendix
 
