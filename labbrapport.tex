@@ -1,28 +1,34 @@
 %%
-%% Time-stamp: <2019-05-16 15:47:23 stefan>
+%% Time-stamp: <2019-05-29 17:53:37 stefan>
 %%
 
-\documentclass[swedish,10pt,a4paper]{article}
+\documentclass[draft,swedish,10pt,a4paper]{article}
 
+\usepackage[utf8]{inputenc}  %% UTF8 i input
+
+%% \usepackage{mathptmx} %% använd Times istället för Computer Modern
+%% \usepackage{mathpazo} %% använd Palatino istället för Computer Modern
 \usepackage{lmodern}         %% Latin Moderna istället för Computer Modern
 \usepackage[T1]{fontenc}     %% åäö som enskilda tecken i font
-\usepackage[utf8]{inputenc}  %% UTF8 i input
+
+\usepackage{hyperxmp}
+\usepackage[unicode]{hyperref}  %% hyperlänkar mellan text och bibliografin
 
 % smallare marginal för anteckningar
 %% \usepackage[marginparwidth=30pt]{geometry}
 
-%% \usepackage{mathptmx} %% använd Times istället för Computer Modern
-%% \usepackage{mathpazo} %% använd Palatino istället för Computer Modern
 
 \usepackage{xcolor}                   %% \definecolor, den gråa bakgrunden i kodlistningarna
 \definecolor{kodbakgrund}{gray}{0.95}
+\definecolor{light-gray}{gray}{0.95}
 
-\usepackage[english,main=swedish]{babel} %% babel : styckenamn på svenska osv (english är med tanke på korrekt funktion i citeringar)
-\usepackage[autostyle=true]{csquotes}    %% csquotes är för svenska beroende av babel
+\usepackage[english,main=swedish]{babel}          %% babel : styckenamn på svenska osv (english
+                                                  %% är med tanke på korrekt funktion i citeringar)
+\usepackage[strict=true,autostyle=true]{csquotes} %% csquotes - bättre citeringar i texten, beroende av babel för svenska
 
 %% \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
 %% \usepackage{verbatim}         %% verbatim miljö
-%% \usepackage{booktabs}         %% bottomrule/toprule !
+\usepackage{booktabs}         %% bottomrule/toprule !
 %% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
 %% \usepackage{footnote}
 %% \usepackage{color}
@@ -54,15 +60,31 @@
   language=Java
 }
 
-\usepackage{hyperref}                                   %% hyperlänkar mellan text och bibliografin
 %% \usepackage[style=alphabetic,backend=biber]{biblatex}    %% biblatex behöver csquotes om babel ska användas
-\usepackage[style=authoryear,backend=biber]{biblatex}   %% biblatex behöver csquotes om babel ska användas
+\usepackage[style=authoryear-ibid,backend=biber]{biblatex}   %% biblatex behöver csquotes om babel ska användas
 \addbibresource[location=local]{bib.bib}
 \addbibresource[location=local]{rfc.bib}
 \addbibresource[location=local]{rfc_draft.bib}
 
 \title{Labbrapport IT119G}
-\author{Stefan Niskanen Skoglund\\IT119G\\19670927--5934}
+\author{%
+  Stefan Niskanen Skoglund\\
+  IT119G\\
+  19670927--5934}
+\hypersetup{%
+  pdftitle={%
+    Labbrapport IT119G Datakommunikation
+  },
+  pdfauthor={%
+    Stefan Niskanen Skoglund  19670927--5934
+  },
+  pdfsubject={%
+    Labbrapport IT119G Datakommunikation
+  },
+  pdfkeywords={%
+    Datakommunikation, IEEE802.3, DNS, IP, UDP, TCP, ARP, RARP
+  }
+}
 
 \begin{document}
 
@@ -70,7 +92,7 @@
 
 \section{IEEE 802.3}\label{IEEE_802.3}
 
-Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite[kapitel 6]{Pelkey}
+Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite{Pelkey}
 som ett svar på ett problem: nämligen hur den nya uppfinningen laserskrivaren
 skulle kunna användas från den nya typen av datorer från XEROX som författare, tekniker,
 ingenjörer och programmerare skulle kunna ha ett eget exemplar av.  Detta som skillnad
@@ -78,28 +100,78 @@ mot samtida stor-datorer och mini-datorer som antingen finansiellt sett var för
 eller för komplicerade för att kontorsarbetare skulle kunna ha sitt eget exemplar.
 
 Dock, IBM PC, Apple II och Xerox Alto var inte de första maskinerna med tillräckligt
-låga kostnader för att en ingenjör skulle kunna ha obegränsad tillgång till dem,
-Bendix G-15\footcite{BendixG15brochure}, LINC (Laboratory INstrument Computer)\footcite{LINCLightsout}
-och olika modeller av DEC PDP-8 räknas som de maskiner som var först att ha ett rätt pris och vara enkel nog
-att använda att exempelvis en ingenjör som i sitt arbete har optimiseringsproblem att beräkna
-kunde få en maskin reserverad för sitt eget bruk.
+låga kostnader för att den inte skulle kunna reserveras för en längre tid för en ingenjörs
+bruk enskilda bruk.
 
-Alto kan räknas som den första arbetsstationen i betydelsen en-användaredator med ett grafiskt
+Bendix G-15\footcite{BendixG15brochure}, LINC (Laboratory INstrument Computer)\footcite{LINCLightsout}
+och olika modeller av DEC PDP-8 räknas som de maskiner som var först att ha rätt pris och
+vara så pass enkel att använda, att exempelvis en ingenjör som i sitt arbete har optimiseringsproblem att beräkna
+kunde få en sådan reserverad för sitt eget bruk.
+
+XEROX Alto och Star (kommersialiseringen av Alto som i huvudsak var prototyper och utvecklingssystem
+avsedda för intern användning) kan räknas som den första arbetsstationen i betydelsen en-användaredator med ett grafiskt
 användaregränssnitt, en stor katodstråleskärm, ett roterande skivminne
 och Doug Engelbarts pekdon, en mus.
 
 Robert Metcalfe anställdes vid PARC 1972 bland annat på grund av sina erfarenheter av ARPANET
-med avsikten att han skulle forska inom XEROX kontorsautomatiseringsprojekt.
+med avsikten att han skulle forska inom XEROX kontorsautomatiseringsprojekt\footcite[kap 6 sekt 7]{Pelkey}.
 
-XEROX patentbegäran för Ethernet namngav Robert Metcalfe, Boggs, Butler Lampson och Chuck Thacker som  1974\footcite[kapitel 6 sektion ]{Pelkey} med avsikten att det skulle vara en viktig
-komponent i XEROX produkter för kontoret.
+Metcalfes doktorsavhandling som var baserad på hans arbete inom Arpanet-projektet refuserades vid disputationen
+våren 1972 med motivationen att dess matematiska innehåll var otillräckligt och att det saknas konkreta teorier
+vilket tvingade honom att hitta nya vinklar och förbättra matematiken. Norman Abramsons text\footcite{AbramsonAloha}
+hade han läst tidigare under året men han ansåg då vid läsningen att texten var felaktig vad
+beträffar modelleringen av hur människor reagerar när en förbindelse har
+större och märkbara fördröjningar. Modellen i Abramsons text antog som en förutsättning att människor fortsätter
+(specifikt) att mata in text även när svaren från värddatorn är kraftigt fördröjda.
 
-Metcalfe blev 1977--1978 frustrerad av XEROX oförmåga att bygga och sälja produkter som
+Han frågade XEROX om lov att resa till Hawaii och Norman Abramson om det var möjligt
+att få komma som gästforskare och fick bifall från båda hållen.
+
+Hans målsättning var modellering av användarnas reaktioner när förbindelser är överlastade
+och formulering av matematiska teorier för detta.
+
+Analysen tydliggjorde att orsaken till fördröjningsproblemen var de alldeles för många omsändningarna av
+data när ALOHAnätet är högt utnyttjat, problemet kunde därmed identifieras som ett processkontrollproblem.
+De statistiska modeller som antog att användarna inte fortsätter trycka på tangenter utan istället
+så länge förbindelsen är långsam tar korta pauser kunde visa på en möjlig problemlösning.
+
+Den här modellen skiljer sig mot den modell som förutsätts i Poissonfördelningen
+i Norman Abramsons artikel.
+
+Idéen är att om sändaren under sändning hör att någon annan samtidigt sänder så ska man
+direkt avbryta sändingen, beräkna slumpvist en längd på en väntperiod vänta den tiden ut
+och därefter om ingen annan sändning har detekterats kan stationen börja sända.
+och under
+sluta och sedan inte ha en fast väntperiod då lär den andre också vänta ungefär samma tid ms utan
+båda ska vänta ett slumpvist vald period innan ett nytt sändningsförsök
+att vänta ett slumpvis antal 10-tals millisekunder innan man försöker sända. Troligtvis kommer
+den andre inte vänta precis lika lång tid. Skulle det efter en sådan väntperiod under sändningen
+visa sig att det fortfarande blir konflikter, ska båda stationerna vänta en ny men ungefär dubbelt så lång
+väntperiod innan de försöker igen. Detta kräver att stationernas mottagningsdel fortsätter arbeta som
+mottagare medan den egna stationen sänder och därmed gör det möjligt att identifiera om sändningen
+tidsmässigt är i konflikt med en annan.
+
+Detta är en central teknik i Ethernet och därmed även de olika varianterna av IEEE 802.3.
+
+Efter att han var nöjd presenterades resultaten för Hawaiiuniversitets systemforskningsgrupp innan
+han på hösten 1973 återvände till XEROX PARC där han fick ansvara för och dokumentera
+hur anläggningens datorer skulle anslutas till Arpanet (IMP:maskinen hade kommit i Oktober 1973.)
+
+Efter att förbindelsen ut var klar och igång fick han en utmaning från PARC-chefsgrupp:
+\foreignquote{english}{Kan du skapa något som gör att vi kan ansluta många datorer och ett antal laserskrivare till varandra?}
+
+XEROX patentansökan 1974\footcite[kap 6 sekt 7]{Pelkey} för Ethernet angav Robert Metcalfe, David Boggs, Butler Lampson och Chuck Thacker
+som meduppfinnare. Avsikten från XEROX sida var då att Ethernet skulle vara en viktig komponent i
+framtida kontorsprodukter.
+Den här versionen av Ethernet var den ursprungliga versionen med 3 megabit överföringshastighet,
+och som gulfärgad koaxialkabel där anslutningen görs med sk.\@vampyr-anslutning.
+
+Metcalfe 1977--1978 frustrerad av XEROX oförmåga att bygga och sälja produkter
 med den nya tekniken och att XEROX:s inställning till den var proprietär, ingen
 annan skulle få använda den i sin produkt.
 
 Metcalfe lämnade i slutet av 1978 XEROX med avsikten att i samarbete med andra
-företag övertala XEROX att acceptera att Ethernet skulle standardiseras
+företag kommersialisera Ethernet
 och därmed bli tillgängligt som tillbehör till andra datorer än de från
 XEROX. Intel, Digital Equipment och XEROX bildade DIX:konsortiet som
 standardiserade Ethernet som IEEE 802.3 10base5.
@@ -234,11 +306,9 @@ har en statiskt tilldelad adress så är det fullt normalt - dpcpd.leases har in
 uppgifter om maskiner vars adresser är statiskt tilldelade
 som exempelvis för pc01:
 
-%% \definecolor{light-gray}{gray}{0.95}
-
 % \lstset{basicstyle=\footnotesize,
 % captionpos=b,
-% backgroundcolor=\color{light-gray},
+% backgroundcolor=\color{kodbakgrund},
 % extendedchars=true,
 % breaklines=true,
 % literate={ö}{{\"o}}1 {å}{{\aa}}1 {Å}{{\aA}}l {ä}{{\"a}}1 {Ö}{{\"O}}1 {Ä}{{\"A}}1
@@ -582,12 +652,13 @@ fast intervall ut aktuell version av reglerna från kontrollanten.
 % VCS:maskinen är värd för git som används av cfengine för att sina data.
 % Samma git:installation används även i rapportskrivningen.
 
+\newpage
 \appendix
+
+\section{DNS Konfigurationsfiler}\label{sec:appendix_dns_conf_files}
 
 I systemet modifierade filer inklusive DNS zoner.
 Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
-
-\section{DNS}\label{sec:appendix_bind_config}
 
 \begin{lstlisting}[caption={/etc/bind/named.conf}]
   //
@@ -674,7 +745,7 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
 % \texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
 % och \texttt{1.168.192.in-addr.arpa}.
 
-\section{isc dhcp}\label{sec:appendix_isc_dhcpd_config}
+\section{isc dhcp kontrollantens konfiguration}\label{sec:appendix_isc_dhcpd_config}
 
 \begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (pool-baserad allokering av adresser)]
 #
@@ -714,7 +785,7 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
   option routers 192.168.1.1;
 }
 \end{lstlisting}
-\newpage
+
 \begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (statisk allokering av adresser)]
 #
 # avsedd för dhcp01.b18steni.it119g.nsa.his.se
@@ -754,6 +825,8 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 }
 \end{lstlisting}
 
+\section{dhcp klienters lease}\label{sec:appendix_dhcp_leases}
+
 \begin{lstlisting}[caption={/var/lib/dhcp/dhcpd.leases}]
 lease 192.168.1.11 {
   starts 5 2019/03/29 11:25:55;
@@ -767,5 +840,7 @@ lease 192.168.1.11 {
 }
 \end{lstlisting}
 
+\newpage
 \printbibliography{}
+
 \end{document}
