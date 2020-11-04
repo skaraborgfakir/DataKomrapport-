@@ -1,43 +1,48 @@
 %%
-%% Time-stamp: <2019-05-29 17:53:37 stefan>
+%% Time-stamp: <2020-03-11 22:35:48 stefan>
 %%
 
-\documentclass[draft,swedish,10pt,a4paper]{article}
+\documentclass[swedish,10pt,a4paper]{report}
 
 \usepackage[utf8]{inputenc}  %% UTF8 i input
 
-%% \usepackage{mathptmx} %% använd Times istället för Computer Modern
-%% \usepackage{mathpazo} %% använd Palatino istället för Computer Modern
 \usepackage{lmodern}         %% Latin Moderna istället för Computer Modern
 \usepackage[T1]{fontenc}     %% åäö som enskilda tecken i font
 
 \usepackage{hyperxmp}
 \usepackage[unicode]{hyperref}  %% hyperlänkar mellan text och bibliografin
 
-% smallare marginal för anteckningar
+%% \renewcommand{\baselinestretch}{1.5}
+%% \linespread{1.5}
+
+%% smallare marginal för anteckningar
 %% \usepackage[marginparwidth=30pt]{geometry}
 
-
-\usepackage{xcolor}                   %% \definecolor, den gråa bakgrunden i kodlistningarna
-\definecolor{kodbakgrund}{gray}{0.95}
-\definecolor{light-gray}{gray}{0.95}
+%% \usepackage{mathptmx} %% använd Times istället för Computer Modern
+%% \usepackage{mathpazo} %% använd Palatino istället för Computer Modern
+\usepackage{newtxtext,newtxmath} %% annan font i math miljöer
 
 \usepackage[english,main=swedish]{babel}          %% babel : styckenamn på svenska osv (english
                                                   %% är med tanke på korrekt funktion i citeringar)
 \usepackage[strict=true,autostyle=true]{csquotes} %% csquotes - bättre citeringar i texten, beroende av babel för svenska
 
+%% tabeller
+\usepackage[flushleft]{threeparttable}                %% fotnoter inuti tabellerna
+\usepackage{booktabs}                                 %% bottomrule/toprule i tabeller
+\usepackage{tabu}                                     %% förbättrat layout av tabeller
+\usepackage{tabularx}               %% mer användbara tabeller
+\usepackage{colortbl}               %% grå bakgrund i tabeller
+
+\usepackage{xcolor}                   %% \definecolor, den gråa bakgrunden i kodlistningarna
+\definecolor{kodbakgrund}{gray}{0.95}
+\definecolor{light-gray}{gray}{0.95}
+
+\newcolumntype{s}{>{\columncolor[gray]{0.95}} p{4cm}} %% ny kolumntyp för tabeller
+
 %% \usepackage[bottom]{footmisc} %% fotnötter i sidans nederkant
 %% \usepackage{verbatim}         %% verbatim miljö
-\usepackage{booktabs}         %% bottomrule/toprule !
-%% \usepackage[flushleft]{threeparttable} %% fotnoter inuti tabellerna
 %% \usepackage{footnote}
 %% \usepackage{color}
-%% \usepackage{tabularx}               %% mer användbara tabeller
-%% \usepackage{colortbl}
-
-%% tabeller
-\usepackage{tabu}                      %% mer användbara tabeller
-\newcolumntype{s}{>{\columncolor[gray]{0.95}} p{4cm}} %% ny kolumntyp för tabeller
 
 %% PDF-inkludering
 \usepackage{graphicx}
@@ -65,8 +70,18 @@
 \addbibresource[location=local]{bib.bib}
 \addbibresource[location=local]{rfc.bib}
 \addbibresource[location=local]{rfc_draft.bib}
+\addbibresource[location=local]{pelkey.bib}
+\addbibresource[location=local]{reports.bib}
 
-\title{Labbrapport IT119G}
+% \usepackage{fancyhdr}
+% \fancyhead[L]{IT119G\\Datorkommunikation}
+% \fancyhead[R]{\thepage}
+% \fancyfoot[L,C,R]{}
+% \renewcommand{\headrulewidth}{0.2pt}
+% \pagestyle{fancy}
+
+\title{%
+  Labbrapport IT119G}
 \author{%
   Stefan Niskanen Skoglund\\
   IT119G\\
@@ -82,50 +97,100 @@
     Labbrapport IT119G Datakommunikation
   },
   pdfkeywords={%
-    Datakommunikation, IEEE802.3, DNS, IP, UDP, TCP, ARP, RARP
+    Datakommunikation,
+    IEEE802.3,
+    IEEE802.2,
+    DNS,
+    IP,
+    UDP,
+    TCP,
+    ARP,
+    RARP
   }
 }
+
+\usepackage[toc,page,title]{appendix}
 
 \begin{document}
 
 \maketitle
 
-\section{IEEE 802.3}\label{IEEE_802.3}
+\chapter{Inledning}\label{chap:inledning}
+
+Jag kommer att presentera något om IEEE:standarderna 802.3 (standardiserad EtherNet) och LLC (Logical Link Control), ARP (Address Resolution Protocol),
+IP (Internet Protocol) och DHCP (Dynamic Host Configuration Protocol.) Det finns några förutsättningar i grunden i XEROX EtherNet och DIX som även idag påverkar 802.3ae.
+
+Avslutningen kommer att handla om DNS (Domain Name System)
+och hur man kan lyssna till IP:trafik och ge exempel på orsaker till att man vill kunna göra detta.
+
+Det sista kapitlet är en kort beskrivning av CFEngine (en
+medlyssning till en hämtning via CFEngine av en fil
+finns med i avlyssningskapitlet.)
+
+\chapter{IEEE 802.3 (Ethernet)}\label{IEEE8023Ethernet}
+
+IEEE 802.3 10base5 och 10base2 är några tidiga tekniker för anslutning
+av datorer i lokala nätverk som ursprungligen utvecklades vid XEROX PARC
+med tanke på deras framtida kontorsautomatiseringssystem.
+
+Senare övertalades XEROX att istället för att se EtherNet som ett konkurrensfördel
+i konkurrensen med andra leverantärer och därmed lämpligt att behålla för sig själva (vilket
+är en definition av proprietära programvara och system)
+att det var mer fördelaktigt för dem att låta andra leverantörer använda de här teknikerna.
+
+XEROX bildade ett konsortium med kretstillverkaren Intel och systemleverantören
+Digital Equipment Corporation där i avtalet angavs en rollfördelning mellan medlemmarna.
+
+\section{XEROX, DIX och Robert Metcalfe }\label{sec:DIX_standard}
 
 Ethernet utvecklades vid XEROX utvecklingscentrum i Palo-Alto\footcite{Pelkey}
-som ett svar på ett problem: nämligen hur den nya uppfinningen laserskrivaren
-skulle kunna användas från den nya typen av datorer från XEROX som författare, tekniker,
-ingenjörer och programmerare skulle kunna ha ett eget exemplar av.  Detta som skillnad
-mot samtida stor-datorer och mini-datorer som antingen finansiellt sett var för dyra
-eller för komplicerade för att kontorsarbetare skulle kunna ha sitt eget exemplar.
+som ett del i XEROX vision av hur framtidens kontorsarbetare skulle
+kunna använda enpersonsdatorer, tjänster i ett nätverk inklusive de
+nya laserskrivarna och kommunicera och interagera med varandra.
+
+Kontorsarbetet ska ses som det konstruktionsarbete som en ingenjör eller
+en programmerares dokumentation av sitt arbete eller den framtida
+programvaruprodukten.
+
+Enpersonsdatorer är maskiner som har tillräckligt låga driftkostnader
+och är av sådan art vad beträffar handhavande så att en ingenjör
+eller en sekreterare ska kunna ha ett för deras bruk reserverat exemplar.
+Detta till skillnad från 1970-talets mini- och stordatorer som antingen var för
+dyra eller vars skötsel var för krävande för att man skulle kunna ha dem i många exemplar.
 
 Dock, IBM PC, Apple II och Xerox Alto var inte de första maskinerna med tillräckligt
 låga kostnader för att den inte skulle kunna reserveras för en längre tid för en ingenjörs
-bruk enskilda bruk.
+enskilda bruk.
 
 Bendix G-15\footcite{BendixG15brochure}, LINC (Laboratory INstrument Computer)\footcite{LINCLightsout}
 och olika modeller av DEC PDP-8 räknas som de maskiner som var först att ha rätt pris och
 vara så pass enkel att använda, att exempelvis en ingenjör som i sitt arbete har optimiseringsproblem att beräkna
 kunde få en sådan reserverad för sitt eget bruk.
 
-XEROX Alto och Star (kommersialiseringen av Alto som i huvudsak var prototyper och utvecklingssystem
-avsedda för intern användning) kan räknas som den första arbetsstationen i betydelsen en-användaredator med ett grafiskt
-användaregränssnitt, en stor katodstråleskärm, ett roterande skivminne
-och Doug Engelbarts pekdon, en mus.
+% XEROX Alto och Star (en förädlad och kommersialiserad version av Alto:maskinen som i huvudsak var prototyper och utvecklingssystem
+% avsedda för intern användning) kan räknas som den första arbetsstationen i betydelsen en-användaredator med ett grafiskt
+% gränssnitt, en stor katodstråleskärm, ett roterande skivminne
+% och Doug Engelbarts pekdon, en mus.
+
+
 
 Robert Metcalfe anställdes vid PARC 1972 bland annat på grund av sina erfarenheter av ARPANET
-med avsikten att han skulle forska inom XEROX kontorsautomatiseringsprojekt\footcite[kap 6 sekt 7]{Pelkey}.
+med avsikten att han skulle forska inom XEROX kontorsautomatiseringsprojekt\footcite[kap 6 sekt 7]{PelkeyChap6s7}
+och ansvara för deras IMP:maskin dvs den dåtida routern mellan Arpanet och de lokala maskinerna.
 
-Metcalfes doktorsavhandling som var baserad på hans arbete inom Arpanet-projektet refuserades vid disputationen
+Metcalfes doktorsavhandling baserades på hans arbete inom Arpanet-projektet men refuserades vid disputationen
 våren 1972 med motivationen att dess matematiska innehåll var otillräckligt och att det saknas konkreta teorier
-vilket tvingade honom att hitta nya vinklar och förbättra matematiken. Norman Abramsons text\footcite{AbramsonAloha}
-hade han läst tidigare under året men han ansåg då vid läsningen att texten var felaktig vad
+dessutom var det matematiska innehållet otillräckligt.
+Norman Abramsons text\footcite{AbramsonAloha} ansåg han vara felaktig vad
 beträffar modelleringen av hur människor reagerar när en förbindelse har
-större och märkbara fördröjningar. Modellen i Abramsons text antog som en förutsättning att människor fortsätter
-(specifikt) att mata in text även när svaren från värddatorn är kraftigt fördröjda.
+större och märkbara fördröjningar. Modellen i Abramsons text hade som en förutsättning att människor fortsätter
+att mata in text även när svaren från värddatorn är kraftigt fördröjda.
 
-Han frågade XEROX om lov att resa till Hawaii och Norman Abramson om det var möjligt
-att få komma som gästforskare och fick bifall från båda hållen.
+Metcalfe frågade sin nya arbetsgivare XEROX om lov att under en period
+gästforska vid Hawaiis universitet i Abramsons grupp med avsikt att slutföra avhandlingen
+och fick godkänt.
+Han fick ävenså bifall från Norman Abramson och gruppen till
+att få komma som gästforskare.
 
 Hans målsättning var modellering av användarnas reaktioner när förbindelser är överlastade
 och formulering av matematiska teorier för detta.
@@ -133,7 +198,7 @@ och formulering av matematiska teorier för detta.
 Analysen tydliggjorde att orsaken till fördröjningsproblemen var de alldeles för många omsändningarna av
 data när ALOHAnätet är högt utnyttjat, problemet kunde därmed identifieras som ett processkontrollproblem.
 De statistiska modeller som antog att användarna inte fortsätter trycka på tangenter utan istället
-så länge förbindelsen är långsam tar korta pauser kunde visa på en möjlig problemlösning.
+så länge förbindelsen är långsam tar korta pauser, kunde visa på en möjlig problemlösning.
 
 Den här modellen skiljer sig mot den modell som förutsätts i Poissonfördelningen
 i Norman Abramsons artikel.
@@ -185,7 +250,6 @@ Digital Equipment hade målsättningen att till skillnad mot den äldre IMP:lös
 kunna integrera anslutningen mot andra datornät inuti sina egna maskiner.
 andra ndatornätsanslutningen inuti deras datorer.
 
-
 % \includegraphics{network_diagram.tex}
 %\includegraphics[height=200pt]{network_diagram_1.pdf}
 %\includegraphics[width=\baselinewidth]{home_stefan_Skrivbord_IT119G_IT119G_labbrapport_network_diagram-job_176.pdf}
@@ -195,9 +259,38 @@ andra ndatornätsanslutningen inuti deras datorer.
   \fbox{\includegraphics[width=\textwidth, clip, viewport=0 450 600 850 ]{network_diagram_export.pdf}}
 \end{figure}
 
-\section{Adressering i OSI:s länk-lager}\label{sec:adressering_i_osis_data_link_layer}
+%% \chapter{Adressering i OSI:s länk-lager}\label{chap:adressering_i_osis_data_link_layer}
 
-\section{Adressöversättning i IP:baserade nätverk}\label{sec:address_translation}
+\section{Kodning i Ethernet}\label{sec:kodningiethernet}
+
+De olika versionerna av Ethernet använder olika kodning beroende på vilken transport som
+används. Jag skriver enbart om typerna Manchester och 802.3ab:s 8b/10b variant.
+
+Fibre Channel sänder alltid i klumpar om 4 oktetter där den första oktetten anger
+om de efterföljande tre är applikationsdata eller styrsignaler för förbindelsen
+
+IEEE 802.3ab
+
+\subsection{Manchester-kodningens fördelar}\label{subsec:manchester_pros}
+
+Självsynkroniserande, mottagaren behöver kunna räkna fram vilka upp-
+eller ner-flanker som är intressenta vilket garanteras genom den specifika
+signalen (pre-amble) i ramens början som omfattar 56 stycken ettor vilket
+är en stadig signal med frekvensen 20 MHz som pågår under 6 millisekunder.
+
+\subsection{Dess nackdelar}\label{subsec:manchester_cons}
+
+Nödvändig bandbredd i förbindelsen är fördubblas jämfört med datahastigheten.
+
+10 Mbit IEEE 802.3 10base5 (DIX) innebär att modulationsfrekvensen i förbindelsen är 20 MHz eller 20 Mbaud.
+
+\subsection{Fördelar i 8B/10B kodning}\label{sec:8b10bkodning}
+
+Den mottagande photodioden lämnar en svag elektrisk signal som förstärks av
+en operationsförstärkare där dess förstärkning genom återkoppling kontrolleras av en efterföljande
+regulator.
+
+\chapter{Adressöversättning i IP:baserade nätverk}\label{chap:address_translation}
 
 Vilket protokoll används i ett nätverk där datorer vill översätta IPv4:s logiska adresser till något
 som hårdvaran kan hantera? ARP = address resolution protocol.
@@ -216,28 +309,63 @@ direkt anslutna till en för den reserverad anslutning i en sk.\ växel, anser j
 % till dator som är ansluten i samma växel eller vidare via andra liknanden enheter till
 % avsedd mottagare.
 
-\subsection{översättning av IP-adress till de motsvarande MAC:adresserna}\label{trans_ip_mac}
+\chapter{översättning av IP-adress till de motsvarande MAC:adresserna}\label{sect:trans_ip_mac}
 
+% \begin{table}
+%   \centering
+%   \caption{tabular maskinnamn \& MAC-adresser}
+%   \begin{tabular}{|ss|}
+%     \bottomrule
+%     maskinnamn         & MAC-adress        \\
+%     ESXi (vmnic0)      & 6c:0b:84:08:fa:79 \\
+%     PC01 (e160)        & 00:50:56:36:16:67 \\ %% \footnote{Statisk tilldelning via gui}\\
+%     webserver01 (e160) & 00:0c:29:4a:cc:d2 \\ %% \footnote{automatiskt tilldelad adress i ESXi}\\
+%     \toprule
+%   \end{tabular}
+% \end{table}
+
+% \begin{table}
+%   \centering
+%   \caption{tabularx maskinnamn \& MAC-adresser}
+%   \begin{tabularx}{200pt}{|X|l|}
+%     \bottomrule
+%     maskinnamn         & MAC-adress       \\
+%     ESXi (vmnic0)      & 6c:0b:84:08:fa:79\\
+%     PC01 (e160)        & 00:50:56:36:16:67\\ %% \footnotemark[8]\\
+%     webserver01 (e160) & 00:0c:29:4a:cc:d2\\ %% \footnotemark[9]\\
+%     \toprule
+%   \end{tabularx}
+% \end{table}
+%% \footnotetext[8]{Statisk tilldelning via gui}
+%% \footnotetext[9]{automatiskt tilldelad adress i ESXi}
 
 \begin{table}
   \centering
-  \caption{maskinnamn \& MAC-adresser}
-  \begin{tabular}{|ss|}
-    \bottomrule
-    maskinnamn         & MAC-adress        \\
-    ESXi (vmnic0)      & 6c:0b:84:08:fa:79 \\
-    PC01 (e160)        & 00:50:56:36:16:67 \\ %% \footnote{Statisk tilldelning via gui}\\
-    webserver01 (e160) & 00:0c:29:4a:cc:d2 \\ %% \footnote{automatiskt tilldelad adress i ESXi}\\
-    \toprule
-  \end{tabular}
+  \begin{threeparttable}{ll}
+    \caption{maskinnamn med deras MAC-adresser}
+    \begin{tabular}{ss} %%
+      maskinnamn         & MAC-adress       \\
+      ESXi (vmnic0)      & 6c:0b:84:08:fa:79\\
+      PC01 (e160)        & 00:50:56:36:16:67\tnote{1}\\ %% \footnotemark[8]\\
+      webserver01 (e160) & 00:0c:29:4a:cc:d2\tnote{2}\\ %% \footnotemark[9]\\
+    \end{tabular}
+    \begin{tablenotes}
+    \item[1] {Statisk tilldelning via gui}
+    \item[2] {automatiskt tilldelad adress i ESXi}
+    \end{tablenotes}
+  \end{threeparttable}
 \end{table}
 
 MAC-adressen för PC01 och webserver01 gäller för virtuella nätanslutningar som
 definieras av ESXi och tilldelas till virtuella maskiner i den värden
 men de skiljer sig från vilken OUI som de tillhör.
 
-\subsubsection{OUI = Organizationally Unique Identifier}
-\label{subsubsec:oui}
+\chapter{ram-storlek i IEEE 802.3}\label{chap:frame_length}
+
+Eftersom ett pakets (ram/frame) maximala överföringstid i EtherNet är standardiserad
+till ett visst antal millisekunder.
+
+\chapter{OUI = Organizationally Unique Identifier}\label{subsubsec:oui}
 
 OUI\footcite{rfc5342} är definierat som de första 24 binära bitarna av en adress dvs första
 hälften av en adress.
@@ -276,7 +404,7 @@ Varför syns det inte någon förändring i ARP-tabellen efter att
 ha försökt ping:a specifik maskin bortanför utgående anslutning ?
 PC01 har i ARP:tabellen lagt till VMrouter:maskinens MAC-adress.
 
-\section{Trafikspårning}
+\chapter{Trafikspårning}
 \label{sec:wireshark_usage}
 
 Vilket protokoll använder ping\footnote{se man -s 8 ping} ? ICMP:s echo:begäran (ICMP typ 8) och ICMP:s motsvarande svarspaket (ICMP typ 0.)
@@ -285,8 +413,9 @@ Eftersom trafik till andra maskiner än de fyra som är direkt åtkomliga i ``Cl
 ``VMrouter'' behövs enbart den maskinens MAC:adress i ARP:tabellen (arp funktionen i operativsystemet hanterar
 next-hop:adresser.)\@10.204.20.1 är inte någon av dem.
 
-\section{DHCP}
-\label{sec:dhcp_konf}
+\chapter{Dynamisk tilldelning av IP:adresser i ett nätverk}\label{chap:dynamisk_adressering}
+
+\section{DHCP}\label{sec:dhcp_konf}
 
 Jag flyttade ``pc01'' till  ``Server network'' sedan klagade den maskinen på ``jag är bortkopplad !''.
 Dessutom fick den inte någon ny IP:adress eftersom det inte finns någon ``DHCP'' tjänst i det nätet.
@@ -298,7 +427,7 @@ den klient som vill ha en ny adress (``DHCP Request''). Dhcp:kontrollanten svara
 egen IPv4:adress till klientens MAC-adress med klientens korrekta IPv4:adress och andra optioner som exempelvis
 korrekt DNS:maskin och DNS:domännamn i samma paket.
 
-\subsection{loggar}
+\chapter{loggar}
 
 ``/var/lib/dhcp/dhcpd.leases'' innehåller uppgifter om vilka klienter som har fått
 automatisk tilldelade adresser via ``range'':uppgiften. Om maskinen inte syns i leases och
@@ -333,12 +462,16 @@ som exempelvis för pc01:
 %   }
 %   \end{lstlisting}
 
-\section{broadcastdomäner}
+\chapter{broadcastdomäner}
 \label{sec:broadcastdomains}
 
 VMrouter borde vara ansluten till tre st (det lokala arbetsgruppsnätet, Server network och Client network.)
 
-\section{DNS:konfiguration}
+\chapter{Adressökning i Internet}\label{chap:adress_i_internet}
+
+
+
+\chapter{DNS:konfiguration}
 \label{sec:dns_konf}
 
 % \begin{lstlisting}[caption={Några frågor, dig +search www}]
@@ -503,7 +636,7 @@ VMrouter borde vara ansluten till tre st (det lokala arbetsgruppsnätet, Server 
 %   ;; MSG SIZE  rcvd: 107
 % \end{lstlisting}
 
-\subsection{Betydelsen av punkt eller inte i frågor med dig}
+\chapter{Betydelsen av punkt eller inte i frågor med dig}
 
 Dig:programmet kan använda den sökdomän i DNS som maskinerna är konfigurerade för, ``b18steni.it119g.nsa.his.se'' i mitt fall och ``xxxx.it119g.nsa.his.se''
 för övriga klasskamrater.
@@ -520,9 +653,9 @@ dig www.b18steni.it119g.nsa.his.se.
 dig +search www
 \end{verbatim}
 
-\section{DNS:konfiguration}\label{sec:dns_config}
+\chapter{DNS:konfiguration}\label{sec:dns_config}
 
-\section{WEB:tjänst}\label{sec:httpd_config}
+\chapter{WEB:tjänst}\label{sec:httpd_config}
 
 DNS i ns01 får frågan:
 Jag vill få en A:uppgift för maskinen ``webserver01.b18steni.it119g.nsa.his.se''.
@@ -567,7 +700,7 @@ Från klienten ser det ut som att svaret kommer från port 53 destinerat
 till 53683.
 
 
-\section{Uppgifter --- statisk IP:adressering}\label{sec:statisk_ip_adressering}
+\chapter{Uppgifter --- statisk IP:adressering}\label{sec:statisk_ip_adressering}
 
 \begin{table}
   \centering
@@ -586,7 +719,7 @@ till 53683.
 \end{table}
 
 
-\section{TCP-anslutningsfaser för en HTTP:överföring }\label{sec:tcp_phases_http}
+\chapter{TCP-anslutningsfaser för en HTTP:överföring }\label{sec:tcp_phases_http}
 
 TCP definieras som en strömbaserad tillförlitlig förbindelse där strömbaserad ska ses som
 att förbindelsen ses som ett flöde utan några för applikationen direkt synliga gränser.
@@ -609,7 +742,7 @@ ACK
 --
 \end{verbatim}
 
-\section{CFEngine}\label{sec:cfengine}
+\chapter{CFEngine}\label{sec:cfengine}
 
 I arbetet har jag använt administrationsverktyget CFEngine Enterprise
 för systemadministration och git som ett sätt att versionssäkra
@@ -652,56 +785,60 @@ fast intervall ut aktuell version av reglerna från kontrollanten.
 % VCS:maskinen är värd för git som används av cfengine för att sina data.
 % Samma git:installation används även i rapportskrivningen.
 
-\newpage
 \appendix
 
-\section{DNS Konfigurationsfiler}\label{sec:appendix_dns_conf_files}
+\addappheadtotoc
 
-I systemet modifierade filer inklusive DNS zoner.
-Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
+\section{DNS Konfigurationsfiler}\label{appendix:dns_conf_files}
+
+I systemet modifierade filer inklusive DNS zonuppgifter.
+
+Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt
+eftersom formatet för filer som beskriver uppgifter för en zon är separat
+från det format som bind:programmet använder för sin egna inställningar.
 
 \begin{lstlisting}[caption={/etc/bind/named.conf}]
-  //
-  // avsedd för ns01.b18steni.it119g.nsa.his.se
-  //
-  // cfe-regler från 192.168.2.24
-  // senast uppdatering av policy:
-  //
+//
+// avsedd för ns01.b18steni.it119g.nsa.his.se
+//
+// cfe-regler från 192.168.2.24
+// senast uppdatering av policy:
+//
 
-  include "/etc/bind/named.conf.options";
-  include "/etc/bind/named.conf.local";
+include "/etc/bind/named.conf.options";
+include "/etc/bind/named.conf.local";
 \end{lstlisting}
 
 \begin{lstlisting}[caption={/etc/bind/named.conf.local}]
-  //
-  // avsedd för ns01.b18steni.it119g.nsa.his.se
-  //
-  // cfe-regler från 192.168.2.24
-  // senast uppdatering av policy:
-  //
+//
+// avsedd för ns01.b18steni.it119g.nsa.his.se
+//
+// cfe-regler från 192.168.2.24
+// senast uppdatering av policy:
+//
 
-  zone "b18steni.it119g.nsa.his.se" {
+zone "b18steni.it119g.nsa.his.se" {
     type master;
     file "/etc/bind/zones/db.b18steni";
-  };
+};
 
-  zone "168.192.in-addr.arpa" {
+zone "168.192.in-addr.arpa" {
     type master;
     file "/etc/bind/zones/db.b18steni_192_rev";
-  };
+};
 \end{lstlisting}
 
 \begin{lstlisting}[caption={/etc/bind/named.conf.options}]
-  //
-  // avsedd för ns01.b18steni.it119g.nsa.his.se
-  //
-  // cfe-regler från 192.168.2.24
-  // senast uppdatering av policy:
-  //
+//
+// avsedd för ns01.b18steni.it119g.nsa.his.se
+//
+// cfe-regler från 192.168.2.24
+// senast uppdatering av policy:
+//
 
-  acl my_computers { 192.168.0.0/16; 10.204.12.0/24; 10.204.20.0/24; };
+acl my_computers { 192.168.0.0/16; 10.204.12.0/24; 10.204.20.0/24; };
 
-  options {
+options {
     directory "/var/cache/bind";
     dnssec-validation auto;
 
@@ -715,15 +852,15 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
 
     allow-recursion { my_computers; }; // neka att jobba åt andra
     allow-query { any; };              // men andra kan ställa frågor
-  };
+};
 \end{lstlisting}
 
-\section{DNS zoner}\label{sec:appendix_dns_zones}
+\section{DNS zoner}\label{appendix:dns_zones}
 
 \begin{lstlisting}[language=sh,caption={/etc/bind/zones/db.b18steni.it119g.nsa.his.se}]
-  # root-domain
-  TTL 2000
-  @ IN SOA ns01.b18steni.it119g.nsa.his.se. stefan.b18steni.it119g.nsa.his.se.
+# root-domain
+TTL 2000
+@ IN SOA ns01.b18steni.it119g.nsa.his.se. stefan.b18steni.it119g.nsa.his.se.
                (2019050218
                 14400
                 3600
@@ -732,20 +869,21 @@ Egentligen konfiguration av bind\footnote{se ``man -s 8 bind''} självt.
 \end{lstlisting}
 
 \begin{lstlisting}[language=sh,caption={/etc/bind/zones/db.1.168.192.in-addr.arpa}]
-  # reverse mapp ip-adresserna 192.168.1.x -> maskin-namn
-  $TTL 2000
+# reverse mapp ip-adresserna 192.168.1.x -> maskin-namn
+$TTL 2000
 \end{lstlisting}
 
 \begin{lstlisting}[caption={/etc/bind/zones/db.2.168.192.in-addr.arpa}]
-  # reverse mapp ip-adresserna 192.168.2.x -> maskin-namn
-  $TTL 2000
+# reverse mapp ip-adresserna 192.168.2.x -> maskin-namn
+$TTL 2000
 \end{lstlisting}
 
 % \texttt{db.b18steni.it119g.nsa.his.se} och motsvarande baklängesmapp\@
 % \texttt{ db.192.168.2/db.192.168.1} för trädet \texttt{2.168.192.in-addr.arpa}
 % och \texttt{1.168.192.in-addr.arpa}.
 
-\section{isc dhcp kontrollantens konfiguration}\label{sec:appendix_isc_dhcpd_config}
+\section{isc dhcp kontrollantens konfiguration}\label{appendix:isc_dhcpd_config}
+\subsection{poolbaserad allokering av adresser}\label{appendix:isc_dhcpd_address_pools}
 
 \begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (pool-baserad allokering av adresser)]
 #
@@ -776,7 +914,6 @@ authoritative;
 # have to hack syslog.conf to complete the redirection).
 log-facility local7;
 
-
 #
 # utan static_dhcp_mapping
 #
@@ -785,6 +922,8 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
   option routers 192.168.1.1;
 }
 \end{lstlisting}
+
+\subsection{statisk allokering av adresser}\label{appendix:dhcp_static_allocation}
 
 \begin{lstlisting}[caption={/etc/dhcp/dhcpd.conf} (statisk allokering av adresser)]
 #
@@ -815,7 +954,6 @@ authoritative;
 # have to hack syslog.conf to complete the redirection).
 log-facility local7;
 
-
 #
 # utan static_dhcp_mapping
 #
@@ -825,7 +963,7 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 }
 \end{lstlisting}
 
-\section{dhcp klienters lease}\label{sec:appendix_dhcp_leases}
+\subsection{dhcpd:programmets uppskrivning av aktuella allokeringar}\label{appendix:dhcp_leases}
 
 \begin{lstlisting}[caption={/var/lib/dhcp/dhcpd.leases}]
 lease 192.168.1.11 {
@@ -839,6 +977,7 @@ lease 192.168.1.11 {
   client-hostname "pc01";
 }
 \end{lstlisting}
+
 
 \newpage
 \printbibliography{}
